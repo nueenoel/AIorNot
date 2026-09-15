@@ -7,11 +7,23 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 @lru_cache(maxsize=1)
 def _engine():
-    from transformers import AutoProcessor, AutoModelForImageClassification
+    """Load the detector once per worker with a lower peak memory footprint."""
+    from transformers import AutoImageProcessor, AutoModelForImageClassification
     import torch
 
-    processor = AutoProcessor.from_pretrained(MODEL_ID)
-    model = AutoModelForImageClassification.from_pretrained(MODEL_ID)
+    # Reduce CPU thread-pool memory on small hosting instances.
+    torch.set_num_threads(1)
+    try:
+        torch.set_num_interop_threads(1)
+    except RuntimeError:
+        pass
+
+    processor = AutoImageProcessor.from_pretrained(MODEL_ID)
+    model = AutoModelForImageClassification.from_pretrained(
+        MODEL_ID,
+        low_cpu_mem_usage=True,
+        use_safetensors=True,
+    )
     model.eval()
     return processor, model, torch
 
@@ -26,7 +38,6 @@ def _class_indexes(model):
         if real_idx is None and any(x in label for x in ("real", "authentic", "genuine")):
             real_idx = i
 
-    # This checkpoint is documented as class 0 = Real, class 1 = Fake.
     if real_idx is None:
         real_idx = 0
     if fake_idx is None:
