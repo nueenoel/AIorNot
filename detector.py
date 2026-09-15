@@ -2,78 +2,105 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-# Keep TensorFlow's CPU thread pools small for low-memory hosting.
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
 
-MODEL_ID = "kumaran-0188/image_forgery_detector"
-MODEL_FILE = "forgery_model_fixed.keras"
+MODEL_REPO = "onnx-community/ai-image-detect-distilled-ONNX"
+MODEL_FILE = "onnx/model_int8.onnx"
+
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
-IMG_SIZE = 224
+IMAGE_SIZE = 224
 
+# The model's documented labels are:
+# 0 = fake
+# 1 = real
+FAKE_INDEX = 0
+REAL_INDEX = 1
+
+# Do not force a binary answer near the middle.
+FAKE_THRESHOLD = 0.65
 REAL_THRESHOLD = 0.65
-FAKE_THRESHOLD = 0.35
 
 
 @lru_cache(maxsize=1)
 def _engine():
-    import keras
-    import tensorflow as tf
+    import onnxruntime as ort
     from huggingface_hub import hf_hub_download
 
-    try:
-        tf.config.threading.set_intra_op_parallelism_threads(1)
-        tf.config.threading.set_inter_op_parallelism_threads(1)
-    except RuntimeError:
-        pass
-
     model_path = hf_hub_download(
-        repo_id=MODEL_ID,
+        repo_id=MODEL_REPO,
         filename=MODEL_FILE,
     )
 
-    model = keras.saving.load_model(model_path, compile=False)
-    return model, keras
+    options = ort.SessionOptions()
+    options.intra_op_num_threads = 1
+    options.inter_op_num_threads = 1
+    options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+    options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+
+    session = ort.InferenceSession(
+        model_path,
+        sess_options=options,
+        providers=["CPUExecutionProvider"],
+    )
+    return session
 
 
-def analyze_image(path: Path):
+def _preprocess(path: Path):
     from PIL import Image
     import numpy as np
 
-    model, _keras = _engine()
-
     with Image.open(path) as image:
         image = image.convert("RGB")
-        image = image.resize((IMG_SIZE, IMG_SIZE), Image.Resampling.BILINEAR)
+        image = image.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
         array = np.asarray(image, dtype=np.float32) / 255.0
 
-    batch = np.expand_dims(array, axis=0)
+    # Model preprocessing: rescale to [0,1], then normalize with mean/std 0.5.
+    array = (array - 0.5) / 0.5
+    array = np.transpose(array, (2, 0, 1))
+    return np.expand_dims(array, axis=0).astype(np.float32)
 
-    # The model card documents this output as the REAL probability.
-    probability_real = float(model.predict(batch, verbose=0)[0][0])
-    probability_real = max(0.0, min(1.0, probability_real))
-    probability_fake = 1.0 - probability_real
 
-    real_pct = round(probability_real * 100, 1)
-    fake_pct = round(probability_fake * 100, 1)
+def analyze_image(path: Path):
+    import numpy as np
 
-    # Use a middle "uncertain" band instead of forcing a guess.
-    if probability_real >= REAL_THRESHOLD:
-        status = "LIKELY_REAL"
-        label = "This image is real"
-        confidence = round(probability_real * 100)
-        message = "The image was classified as Real by the image forgery model."
-    elif probability_real <= FAKE_THRESHOLD:
+    session = _engine()
+    input_name = session.get_inputs()[0].name
+    input_tensor = _preprocess(path)
+
+    outputs = session.run(None, {input_name: input_tensor})
+    logits = np.asarray(outputs[0])[0]
+
+    # Stable softmax for the two-class logits.
+    logits = logits - np.max(logits)
+    probs = np.exp(logits)
+    probs = probs / np.sum(probs)
+
+    fake_probability = float(probs[FAKE_INDEX])
+    real_probability = float(probs[REAL_INDEX])
+
+    fake_pct = round(fake_probability * 100, 1)
+    real_pct = round(real_probability * 100, 1)
+
+    if fake_probability >= FAKE_THRESHOLD:
         status = "AI-GENERATED"
         label = "AI generated"
-        confidence = round(probability_fake * 100)
-        message = "The image was classified as Fake by the image forgery model."
+        confidence = round(fake_probability * 100)
+        message = "The image was classified as Fake by the image detection model."
+    elif real_probability >= REAL_THRESHOLD:
+        status = "LIKELY_REAL"
+        label = "This image is real"
+        confidence = round(real_probability * 100)
+        message = "The image was classified as Real by the image detection model."
     else:
         status = "UNCERTAIN"
         label = "Analysis inconclusive"
-        confidence = round(max(probability_real, probability_fake) * 100)
-        message = "The model did not have enough evidence to confidently classify this image as real or fake."
+        confidence = round(max(fake_probability, real_probability) * 100)
+        message = (
+            "The model did not have enough evidence to confidently classify "
+            "this image as real or fake."
+        )
 
     return {
         "status": status,
@@ -82,8 +109,8 @@ def analyze_image(path: Path):
         "fake_probability": fake_pct,
         "real_probability": real_pct,
         "frames_analyzed": 1,
-        "model": MODEL_ID,
-        "model_labels": {"0": "Fake", "1": "Real"},
+        "model": MODEL_REPO,
+        "model_labels": {"0": "fake", "1": "real"},
         "message": message,
         "disclaimer": "*Analysis is not 100% proficient and might make mistakes.",
     }
