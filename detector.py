@@ -1,82 +1,79 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
-MODEL_ID = "king1oo1/deepfake-model"
+# Keep TensorFlow's CPU thread pools small for low-memory hosting.
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+
+MODEL_ID = "kumaran-0188/image_forgery_detector"
+MODEL_FILE = "forgery_model_fixed.keras"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+IMG_SIZE = 224
+
+REAL_THRESHOLD = 0.65
+FAKE_THRESHOLD = 0.35
 
 
 @lru_cache(maxsize=1)
 def _engine():
-    """Load the detector once per worker with a lower peak memory footprint."""
-    from transformers import AutoImageProcessor, AutoModelForImageClassification
-    import torch
+    import keras
+    import tensorflow as tf
+    from huggingface_hub import hf_hub_download
 
-    # Reduce CPU thread-pool memory on small hosting instances.
-    torch.set_num_threads(1)
     try:
-        torch.set_num_interop_threads(1)
+        tf.config.threading.set_intra_op_parallelism_threads(1)
+        tf.config.threading.set_inter_op_parallelism_threads(1)
     except RuntimeError:
         pass
 
-    processor = AutoImageProcessor.from_pretrained(MODEL_ID)
-    model = AutoModelForImageClassification.from_pretrained(
-        MODEL_ID,
-        low_cpu_mem_usage=True,
-        use_safetensors=True,
+    model_path = hf_hub_download(
+        repo_id=MODEL_ID,
+        filename=MODEL_FILE,
     )
-    model.eval()
-    return processor, model, torch
 
-
-def _class_indexes(model):
-    labels = model.config.id2label or {}
-    fake_idx = real_idx = None
-    for i in range(model.config.num_labels):
-        label = str(labels.get(i, "")).lower()
-        if fake_idx is None and any(x in label for x in ("fake", "deepfake", "synthetic")):
-            fake_idx = i
-        if real_idx is None and any(x in label for x in ("real", "authentic", "genuine")):
-            real_idx = i
-
-    if real_idx is None:
-        real_idx = 0
-    if fake_idx is None:
-        fake_idx = 1 if model.config.num_labels > 1 else 0
-    return real_idx, fake_idx, labels
+    model = keras.saving.load_model(model_path, compile=False)
+    return model, keras
 
 
 def analyze_image(path: Path):
     from PIL import Image
+    import numpy as np
 
-    processor, model, torch = _engine()
+    model, _keras = _engine()
+
     with Image.open(path) as image:
         image = image.convert("RGB")
-        inputs = processor(images=image, return_tensors="pt")
+        image = image.resize((IMG_SIZE, IMG_SIZE), Image.Resampling.BILINEAR)
+        array = np.asarray(image, dtype=np.float32) / 255.0
 
-    with torch.inference_mode():
-        logits = model(**inputs).logits
-        probs = torch.softmax(logits, dim=-1)[0]
+    batch = np.expand_dims(array, axis=0)
 
-    real_idx, fake_idx, labels = _class_indexes(model)
-    real = float(probs[real_idx])
-    fake = float(probs[fake_idx])
-    total = real + fake
-    if total:
-        real /= total
-        fake /= total
+    # The model card documents this output as the REAL probability.
+    probability_real = float(model.predict(batch, verbose=0)[0][0])
+    probability_real = max(0.0, min(1.0, probability_real))
+    probability_fake = 1.0 - probability_real
 
-    fake_pct = round(fake * 100, 1)
-    real_pct = round(real * 100, 1)
-    confidence = round(max(fake, real) * 100)
+    real_pct = round(probability_real * 100, 1)
+    fake_pct = round(probability_fake * 100, 1)
 
-    if fake >= real:
-        status = "AI-GENERATED"
-        label = "AI generated"
-        message = "The image was classified closer to the model's Fake class."
-    else:
+    # Use a middle "uncertain" band instead of forcing a guess.
+    if probability_real >= REAL_THRESHOLD:
         status = "LIKELY_REAL"
         label = "This image is real"
-        message = "The image was classified closer to the model's Real class."
+        confidence = round(probability_real * 100)
+        message = "The image was classified as Real by the image forgery model."
+    elif probability_real <= FAKE_THRESHOLD:
+        status = "AI-GENERATED"
+        label = "AI generated"
+        confidence = round(probability_fake * 100)
+        message = "The image was classified as Fake by the image forgery model."
+    else:
+        status = "UNCERTAIN"
+        label = "Analysis inconclusive"
+        confidence = round(max(probability_real, probability_fake) * 100)
+        message = "The model did not have enough evidence to confidently classify this image as real or fake."
 
     return {
         "status": status,
@@ -86,7 +83,7 @@ def analyze_image(path: Path):
         "real_probability": real_pct,
         "frames_analyzed": 1,
         "model": MODEL_ID,
-        "model_labels": {str(k): str(v) for k, v in labels.items()},
+        "model_labels": {"0": "Fake", "1": "Real"},
         "message": message,
         "disclaimer": "*Analysis is not 100% proficient and might make mistakes.",
     }
@@ -104,4 +101,5 @@ def analyze(path: Path):
             "message": "Image analysis is available now. Video and audio analysis are being added.",
             "disclaimer": "",
         }
+
     return analyze_image(path)
