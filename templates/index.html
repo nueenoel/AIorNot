@@ -1,213 +1,166 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AIorNot — Real or rendered? Let’s see.</title>
-<style>
-:root{--bg:#08090d;--panel:rgba(17,19,27,.72);--line:rgba(255,255,255,.10);--text:#f7f8fb;--muted:#969cab;--accent:#a58bff;--good:#65d6a2;--bad:#ff6f86;--warn:#ffd166}
-*{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -15%,rgba(119,92,255,.19),transparent 34%),radial-gradient(circle at 80% 25%,rgba(70,120,255,.08),transparent 28%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
-.wrap{width:min(980px,92%);margin:auto;padding:34px 0 64px}.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:82px}.brand{font-weight:800;font-size:24px;letter-spacing:-.04em}.tag{color:var(--muted);font-size:13px}
-h1{font-size:clamp(52px,8vw,88px);line-height:.94;letter-spacing:-.07em;margin:0 0 22px;max-width:850px}.grad{background:linear-gradient(90deg,#fff,#b7aaff);-webkit-background-clip:text;background-clip:text;color:transparent}.sub{font-size:17px;line-height:1.65;color:var(--muted);max-width:660px;margin-bottom:34px}
-.grid{display:grid;grid-template-columns:1fr;gap:18px;max-width:760px}.card{background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:22px;backdrop-filter:blur(20px);box-shadow:0 24px 70px rgba(0,0,0,.24)}
-.drop{border:1px dashed rgba(255,255,255,.20);border-radius:22px;padding:44px 28px;text-align:center;transition:.2s;background:rgba(255,255,255,.018)}.drop.drag{border-color:var(--accent);background:#15172d}.drop h3{margin:14px 0 7px;font-size:22px}.muted{color:var(--muted)} input{display:none}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;background:#fff;color:#080a10;font-weight:750;padding:13px 19px;border-radius:12px;cursor:pointer;margin-top:16px}.btn.secondary{background:#191c27;color:#eef1f8;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:default}.file{margin-top:15px;font-size:13px;color:#cfd5e3;word-break:break-word}
-.preview{display:none;margin-top:18px;overflow:hidden;border-radius:18px;border:1px solid var(--line);background:#090b10}.preview img,.preview video{display:block;width:100%;max-height:360px;object-fit:contain;background:#050608}.preview audio{display:block;width:100%;padding:16px}.meta{display:flex;justify-content:space-between;gap:15px;padding:12px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.results{min-height:360px}.empty{height:100%;display:grid;place-items:center;text-align:center;color:var(--muted);padding:30px}.score{font-size:66px;line-height:1;font-weight:800;letter-spacing:-.06em;margin:10px 0}.status{display:inline-block;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;background:#1b2030}.status.bad{color:#ff8a9c;background:#321622}.status.good{color:#6be0ab;background:#122b23}.status.warn{color:#ffda8d;background:#302611}.bar{height:9px;border-radius:99px;background:#1d2434;overflow:hidden;margin:18px 0}.fill{height:100%;width:0;background:linear-gradient(90deg,#69ddac,#ffca6c,#ff667d);transition:width .5s}.row{display:flex;justify-content:space-between;gap:20px;font-size:14px;margin:10px 0}.signal{padding:12px 13px;border:1px solid var(--line);border-radius:13px;margin-top:10px;color:#cbd2e0;font-size:13px;line-height:1.45}.note{margin-top:14px;color:#7f8aa2;font-size:11px;line-height:1.5}.flow{display:none;align-items:center;justify-content:center;height:36px;position:relative}.flow.show{display:flex}.flow:before{content:"";width:72px;border-top:2px dotted rgba(165,139,255,.75)}.flow:after{content:"➜";position:absolute;margin-left:84px;color:var(--accent);font-size:16px}.flow span{display:none}.success{margin-top:14px;padding:11px 13px;border-radius:12px;background:#10261f;color:#8ce6bc;font-size:12px;display:none}
-.menu-btn{width:42px;height:42px;border:1px solid var(--line);border-radius:13px;background:rgba(17,19,27,.72);color:#fff;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(16px);transition:.2s}.menu-btn:hover{background:#171a25}.menu-btn span,.menu-btn span:before,.menu-btn span:after{display:block;width:17px;height:2px;background:#f7f8fb;border-radius:2px;content:"";position:relative}.menu-btn span:before{position:absolute;top:-6px}.menu-btn span:after{position:absolute;top:6px}.drawer{position:fixed;inset:0;z-index:20;pointer-events:none}.drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.46);opacity:0;transition:.22s}.drawer-panel{position:absolute;top:0;right:0;width:min(380px,88vw);height:100%;background:#0d0f15;border-left:1px solid var(--line);padding:24px;transform:translateX(100%);transition:.24s;box-shadow:-28px 0 80px rgba(0,0,0,.38);overflow:auto}.drawer.open{pointer-events:auto}.drawer.open .drawer-backdrop{opacity:1}.drawer.open .drawer-panel{transform:translateX(0)}.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.drawer-title{font-size:17px;font-weight:800;letter-spacing:-.02em}.close-btn{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:#171a22;color:#dfe3ec;cursor:pointer;font-size:20px}.drawer-link{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:#eef1f7;padding:14px 13px;border-radius:13px;font:inherit;cursor:pointer}.drawer-link:hover,.drawer-link.active{background:#171a22;border-color:var(--line)}.drawer-section{margin-top:18px}.drawer-content{display:none;margin:10px 0 0;padding:17px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);color:#b9c0cf;font-size:13px;line-height:1.7}.drawer-content.show{display:block}.step{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)}.step:first-child{margin-top:0;padding-top:0;border-top:0}.step strong{display:block;color:#f4f6fb;margin-bottom:3px}.drawer-foot{margin-top:28px;color:#737c8f;font-size:11px;line-height:1.6}
-@media(max-width:800px){.nav{margin-bottom:45px}.tag{display:none}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIorNot</title>
+  <style>
+    :root{--bg:#fff;--text:#111;--muted:#777;--line:#ddd;--soft:#f6f6f6;--dark:#111}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .menu-btn{position:fixed;top:22px;left:22px;width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:10px;display:grid;place-content:center;gap:4px;cursor:pointer;z-index:20}
+    .menu-btn span{display:block;width:15px;height:1.5px;background:#111}
+    .side-panel{position:fixed;inset:0 auto 0 0;width:min(330px,88vw);padding:78px 28px 30px;background:#fff;border-right:1px solid var(--line);transform:translateX(-100%);transition:transform .2s ease;z-index:15}
+    .side-panel.open{transform:translateX(0)}
+    .side-panel h2{margin:0 0 22px;font-size:22px}
+    .side-panel p{margin:0 0 15px;color:#555;line-height:1.55;font-size:14px}
+    .close-btn{position:absolute;top:20px;right:20px;border:0;background:transparent;font-size:26px;cursor:pointer}
+    .page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:120px 22px 70px}
+    .hero{text-align:center;max-width:720px}
+    .hero h1{font-size:clamp(56px,10vw,92px);line-height:1;margin:0;font-weight:800;letter-spacing:-.06em}
+    .hero p{margin:18px 0 0;font-size:20px;color:#555}
+    .analyzer{width:min(760px,100%);margin-top:64px}
+    .upload-area{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
+    .upload-btn,.analyze-btn{height:48px;padding:0 20px;border-radius:10px;border:1px solid #111;font:inherit;font-weight:650;cursor:pointer}
+    .upload-btn{background:#111;color:#fff}
+    .analyze-btn{background:#fff;color:#111}
+    .analyze-btn:disabled{opacity:.4;cursor:default}
+    .arrow{color:#999;letter-spacing:2px;font-size:24px;white-space:nowrap}
+    .file-name{text-align:center;margin:18px 0 0;color:#555;font-size:14px;min-height:20px;word-break:break-word}
+    .preview{margin-top:28px;display:none;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--soft)}
+    .preview img{display:block;width:100%;max-height:430px;object-fit:contain;background:#fafafa}
+    .preview-meta{padding:10px 14px;color:#666;font-size:12px;border-top:1px solid var(--line)}
+    .status{text-align:center;margin-top:20px;color:#666;font-size:13px;min-height:20px}
+    .result{margin-top:38px;padding-top:32px;border-top:1px solid var(--line);text-align:center}
+    .result-label{font-size:30px;font-weight:750;letter-spacing:-.03em}
+    .score{margin-top:10px;font-size:20px;color:#555}
+    .message{max-width:620px;margin:14px auto 0;color:#555;line-height:1.5;font-size:14px}
+    .disclaimer{margin:18px auto 0;color:#999;font-size:11px;line-height:1.45;max-width:560px}
+    .coming{color:#555}
+    @media(max-width:600px){.page{padding-top:105px}.analyzer{margin-top:46px}.arrow{width:100%;font-size:20px}.upload-area{gap:10px}}
+  </style>
 </head>
 <body>
-<div class="drawer" id="drawer" aria-hidden="true">
-  <div class="drawer-backdrop" id="drawerBackdrop"></div>
-  <aside class="drawer-panel" aria-label="Menu">
-    <div class="drawer-head"><div class="drawer-title">Menu</div><button class="close-btn" id="closeBtn" type="button" aria-label="Close menu">×</button></div>
-    <div class="drawer-section">
-      <button class="drawer-link active" id="howBtn" type="button">How it works?</button>
-      <div class="drawer-content show" id="howContent">
-        <div class="step"><strong>1. Upload</strong>Choose an image from your device. JPG, JPEG, PNG and WEBP are supported for analysis.</div>
-        <div class="step"><strong>2. Analyze</strong>AIorNot examines the image for visual patterns associated with AI-generated or manipulated content.</div>
-        <div class="step"><strong>3. Get your result</strong>You’ll receive a simple result telling you whether the image is more likely AI generated or real, along with a confidence score.</div>
-        <div class="step"><strong>4. Keep the context in mind</strong>No automated detector is perfect. Results are an assessment and should be considered alongside the source and context of the image.</div>
-      </div>
-    </div>
-    <div class="drawer-foot">Video and audio analysis are being added.</div>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <aside class="side-panel" id="sidePanel" aria-hidden="true">
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+    <h2>How it works?</h2>
+    <p>Upload an image.</p>
+    <p>AIorNot analyzes it with an image classification model.</p>
+    <p>It estimates whether the image is likely real or synthetic.</p>
+    <p>The result is an estimate and can be wrong.</p>
+    <p>Video and audio analysis are being added.</p>
   </aside>
-</div>
 
-<div class="wrap">
-  <div class="nav"><div class="brand">AI<span style="color:var(--accent)">or</span>Not</div><button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu"><span></span></button></div>
-  <h1>Real or <span class="grad">rendered?</span> Let’s see.</h1>
-  <div class="sub">Upload an image, video, or audio file. Image analysis is available now; video and audio analysis are being added.</div>
+  <main class="page">
+    <section class="hero">
+      <h1>AIorNot</h1>
+      <p>Real or rendered? Let’s see.</p>
+    </section>
 
-  <div class="grid">
-    <section class="card">
-      <div id="drop" class="drop">
-        <div style="font-size:34px;opacity:.9">↑</div>
-        <h3>Choose a file</h3>
-        <div class="muted">JPG, PNG, WEBP, MP4, MOV, AVI, MKV, WEBM, MP3 or WAV</div>
-        <input id="file" type="file" accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.mkv,.webm,.mp3,.wav">
-        <button class="btn" id="pick" type="button">Choose file</button>
-        <div class="file" id="fname">No file selected</div>
+    <section class="analyzer">
+      <input id="fileInput" type="file" hidden accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.mkv,.webm,.mp3,.wav">
+      <div class="upload-area">
+        <button class="upload-btn" id="uploadBtn" type="button">Choose file</button>
+        <div class="arrow" aria-hidden="true">····→</div>
+        <button class="analyze-btn" id="analyzeBtn" type="button" disabled>Analyze</button>
       </div>
-
-      <div id="preview" class="preview"></div>
-      <div id="success" class="success">File uploaded successfully.</div>
-      <button class="btn" style="width:100%;margin-top:16px" id="scan" disabled type="button">Analyze image</button>
-      <div class="note">Supported files are uploaded securely for processing. Authenticity results are presented as an automated assessment.</div>
+      <div class="file-name" id="fileName">No file selected</div>
+      <div class="preview" id="preview"></div>
+      <div class="status" id="status"></div>
+      <div class="result" id="result" hidden>
+        <div class="result-label" id="resultLabel"></div>
+        <div class="score" id="resultScore"></div>
+        <p class="message" id="resultMessage"></p>
+        <p class="disclaimer" id="resultDisclaimer"></p>
+      </div>
     </section>
+  </main>
 
-    <section class="card results">
-      <div id="empty" class="empty"><div><div style="font-size:42px;opacity:.72">◌</div><div style="font-weight:700;color:#e8eaf0;margin-bottom:6px">Nothing uploaded yet.</div><div>Choose a file to see it here.</div></div></div>
-      <div id="result" style="display:none"></div>
-    </section>
-  </div>
-</div>
+  <script>
+    const fileInput=document.getElementById('fileInput');
+    const uploadBtn=document.getElementById('uploadBtn');
+    const analyzeBtn=document.getElementById('analyzeBtn');
+    const fileName=document.getElementById('fileName');
+    const preview=document.getElementById('preview');
+    const statusEl=document.getElementById('status');
+    const result=document.getElementById('result');
+    const resultLabel=document.getElementById('resultLabel');
+    const resultScore=document.getElementById('resultScore');
+    const resultMessage=document.getElementById('resultMessage');
+    const resultDisclaimer=document.getElementById('resultDisclaimer');
+    const menuBtn=document.getElementById('menuBtn');
+    const sidePanel=document.getElementById('sidePanel');
+    const closeBtn=document.getElementById('closeBtn');
+    let uploaded=null;
 
-<script>
-const drawer=document.getElementById('drawer');
-const menuBtn=document.getElementById('menuBtn');
-const closeBtn=document.getElementById('closeBtn');
-const drawerBackdrop=document.getElementById('drawerBackdrop');
-menuBtn.addEventListener('click',()=>{drawer.classList.add('open');drawer.setAttribute('aria-hidden','false')});
-function closeDrawer(){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true')}
-closeBtn.addEventListener('click',closeDrawer);
-drawerBackdrop.addEventListener('click',closeDrawer);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
-const drop=document.getElementById('drop');
-const file=document.getElementById('file');
-const pick=document.getElementById('pick');
-const scan=document.getElementById('scan');
-const fname=document.getElementById('fname');
-const preview=document.getElementById('preview');
-const success=document.getElementById('success');
-const empty=document.getElementById('empty');
-const result=document.getElementById('result');
-const flow=document.getElementById('flow');
-let selected=null;
-let uploaded=null;
+    menuBtn.onclick=()=>{sidePanel.classList.add('open');sidePanel.setAttribute('aria-hidden','false')};
+    closeBtn.onclick=()=>{sidePanel.classList.remove('open');sidePanel.setAttribute('aria-hidden','true')};
+    uploadBtn.onclick=()=>fileInput.click();
+    fileInput.onchange=()=>chooseFile(fileInput.files[0]);
 
-pick.onclick=()=>file.click();
-file.onchange=()=>setFile(file.files[0]);
-['dragenter','dragover'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('drag')}));
-['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('drag')}));
-drop.addEventListener('drop',ev=>setFile(ev.dataTransfer.files[0]));
+    function fmt(bytes){
+      if(bytes<1024)return bytes+' B';
+      if(bytes<1024*1024)return (bytes/1024).toFixed(1)+' KB';
+      return (bytes/1024/1024).toFixed(1)+' MB';
+    }
+    function ext(name){return name.includes('.')?name.split('.').pop().toLowerCase():''}
+    function chooseFile(file){
+      if(!file)return;
+      uploaded=null;
+      analyzeBtn.disabled=true;
+      result.hidden=true;
+      statusEl.textContent='';
+      fileName.textContent=file.name+' • '+fmt(file.size);
+      const e=ext(file.name);
+      preview.style.display='none';
+      preview.innerHTML='';
+      if(['jpg','jpeg','png','webp'].includes(e)){
+        const img=document.createElement('img');
+        img.src=URL.createObjectURL(file);img.alt='Selected image';
+        const meta=document.createElement('div');meta.className='preview-meta';meta.textContent='Image • '+fmt(file.size);
+        preview.append(img,meta);preview.style.display='block';
+      }
+      upload(file);
+    }
+    async function upload(file){
+      statusEl.textContent='Uploading…';
+      const fd=new FormData();fd.append('media',file);
+      try{
+        const r=await fetch('/api/upload',{method:'POST',body:fd});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Upload failed.');
+        uploaded=d;
+        fileName.textContent=d.filename+' • '+fmt(d.size);
+        if(d.kind==='image'){
+          analyzeBtn.disabled=false;
+          statusEl.textContent='Ready to analyze.';
+        }else{
+          analyzeBtn.disabled=true;
+          statusEl.textContent='Analysis coming soon — image analysis is available now; video/audio analysis is being added.';
+        }
+      }catch(err){statusEl.textContent=err.message}
+    }
 
-function formatSize(bytes){
-  if(bytes<1024) return bytes+' B';
-  if(bytes<1024*1024) return (bytes/1024).toFixed(1)+' KB';
-  return (bytes/1024/1024).toFixed(1)+' MB';
-}
-
-function fileType(name){
-  return name.split('.').pop().toLowerCase();
-}
-
-function setFile(f){
-  if(!f)return;
-  selected=f; uploaded=null;
-  fname.textContent=`${f.name} • ${formatSize(f.size)}`;
-  success.style.display='none';
-  scan.disabled=true;
-  flow.classList.remove('show');
-  result.style.display='none';
-  empty.style.display='grid';
-  renderPreview(f);
-  uploadFile(f);
-}
-
-function renderPreview(f){
-  const type=f.type || '';
-  const url=URL.createObjectURL(f);
-  preview.style.display='block';
-  if(type.startsWith('image/')){
-    preview.innerHTML=`<img src="${url}" alt="Selected image"><div class="meta"><span>Image</span><span>${formatSize(f.size)}</span></div>`;
-  }else if(type.startsWith('video/') || ['mp4','mov','avi','mkv','webm'].includes(fileType(f.name))){
-    preview.innerHTML=`<video src="${url}" controls preload="metadata"></video><div class="meta"><span>Video</span><span>${formatSize(f.size)}</span></div>`;
-  }else if(type.startsWith('audio/') || ['mp3','wav'].includes(fileType(f.name))){
-    preview.innerHTML=`<audio src="${url}" controls></audio><div class="meta"><span>Audio</span><span>${formatSize(f.size)}</span></div>`;
-  }else{
-    preview.innerHTML=`<div style="padding:28px;text-align:center">File selected</div>`;
-  }
-}
-
-async function uploadFile(f){
-  const fd=new FormData();
-  fd.append('media',f);
-  fname.textContent=`Uploading ${f.name}…`;
-  try{
-    const r=await fetch('/api/upload',{method:'POST',body:fd});
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.error||'Upload failed');
-    uploaded=d;
-    fname.textContent=`${d.filename} • ${formatSize(d.size)}`;
-    success.style.display='block';
-    scan.disabled=false;
-    const imageReady=['jpg','jpeg','png','webp'].includes(d.extension);
-    flow.classList.toggle('show', imageReady);
-    if(imageReady){ scan.textContent='Analyze image'; } else { scan.textContent='Image analysis only'; scan.disabled=true; }
-    showUploadedPreview(d);
-  }catch(e){
-    fname.textContent=`${f.name} • ${formatSize(f.size)}`;
-    success.textContent=e.message;
-    success.style.display='block';
-    success.style.background='#2b151d';
-    success.style.color='#ff9bad';
-  }
-}
-
-function showUploadedPreview(d){
-  // Keep the locally rendered media preview and use the uploaded URL for verification.
-  const ext=d.extension;
-  if(['jpg','jpeg','png','webp'].includes(ext)) preview.querySelector('img')?.setAttribute('src',d.url);
-  if(['mp4','mov','avi','mkv','webm'].includes(ext)) preview.querySelector('video')?.setAttribute('src',d.url);
-  if(['mp3','wav'].includes(ext)) preview.querySelector('audio')?.setAttribute('src',d.url);
-}
-
-scan.onclick=async()=>{
-  if(!uploaded)return;
-  scan.disabled=true;
-  scan.textContent='Analyzing…';
-  empty.style.display='none';
-  result.style.display='block';
-  result.innerHTML='<div class="empty">Analyzing your file…<br><span class="muted">The first analysis can take longer while the detection engine loads.</span></div>';
-  const fd=new FormData();
-  fd.append('stored_name',uploaded.stored_name);
-  fd.append('filename',uploaded.filename);
-  try{
-    const r=await fetch('/api/analyze',{method:'POST',body:fd});
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.error||'Analysis failed');
-    render(d);
-  }catch(e){
-    result.innerHTML=`<div class="empty">Unable to analyze this file.<br><span class="muted">${escapeHtml(e.message)}</span></div>`;
-  }finally{
-    scan.disabled=false;
-    scan.textContent='Analyze image';
-  }
-};
-
-function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-
-function render(d){
-  if(d.status==='COMING_SOON'){
-    result.innerHTML=`<div class="empty"><div><div style="font-size:42px;opacity:.72">◌</div><div style="font-weight:700;color:#e8eaf0;margin-bottom:6px">${escapeHtml(d.label||'Coming soon')}</div><div>${escapeHtml(d.message||'This analysis is being added.')}</div></div></div>`;
-    return;
-  }
-  const cls=d.status==='AI-GENERATED'?'bad':d.status==='LIKELY_REAL'?'good':'warn';
-  const score=d.score==null?'—':d.score+'%';
-  const status=(d.status||'RESULT').replaceAll('_',' ');
-  const signals=(d.signals||[]).map(x=>`<div class="signal">${escapeHtml(x)}</div>`).join('');
-  result.innerHTML=`<div>
-    <div class="status ${cls}">${escapeHtml(status)}</div>
-    <div style="font-size:30px;font-weight:800;letter-spacing:-.04em;margin:18px 0 12px">${escapeHtml(d.label||'')}</div>
-    <div class="score" style="font-size:44px">${score}<span style="font-size:15px;color:#969cab;font-weight:600;letter-spacing:0"> confidence</span></div>
-    <div class="bar"><div class="fill" style="width:${d.score??0}%"></div></div>
-    ${d.message?`<div class="signal">${escapeHtml(d.message)}</div>`:''}
-    ${signals?`<div style="margin-top:18px;font-weight:700">Analysis</div>${signals}`:''}
-    <div class="note" style="margin-top:18px">${escapeHtml(d.disclaimer||'*Analysis is not 100% proficient and might make mistakes.')}</div>
-  </div>`;
-}
-</script>
+    analyzeBtn.onclick=async()=>{
+      if(!uploaded)return;
+      analyzeBtn.disabled=true;fileInput.disabled=true;
+      statusEl.textContent='Analyzing…';
+      result.hidden=false;
+      resultLabel.textContent='';resultScore.textContent='';resultMessage.textContent='';resultDisclaimer.textContent='';
+      const fd=new FormData();fd.append('stored_name',uploaded.stored_name);fd.append('filename',uploaded.filename);
+      try{
+        const r=await fetch('/api/analyze',{method:'POST',body:fd});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Analysis failed.');
+        resultLabel.textContent=d.label||'Result';
+        resultScore.textContent=d.score==null?'':(d.score+'% confidence');
+        resultMessage.textContent=d.message||'';
+        resultDisclaimer.textContent=d.disclaimer||'*Analysis is not 100% proficient and might make mistakes.';
+        statusEl.textContent='';
+      }catch(err){resultLabel.textContent='Analysis unavailable';resultMessage.textContent=err.message;resultDisclaimer.textContent=''}
+      finally{analyzeBtn.disabled=false;fileInput.disabled=false}
+    };
+  </script>
 </body>
 </html>
