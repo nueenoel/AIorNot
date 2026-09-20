@@ -25,22 +25,27 @@
     .side-panel.open{transform:translateX(0)}
     .side-panel h2{margin:0 0 22px;font-size:22px}
     .side-panel .next-title{margin-top:34px}
+    .side-panel p{max-width:100%;} 
     .side-panel p{
-      position:relative;
+      display:grid;
+      grid-template-columns:22px minmax(0,1fr);
+      align-items:start;
+      column-gap:0;
       margin:0 0 15px;
-      padding-left:22px;
       color:#555;
       line-height:1.55;
-      font-size:14px
+      font-size:14px;
     }
     .side-panel p::before{
       content:'•';
-      position:absolute;
-      left:2px;
-      top:0;
+      width:22px;
+      height:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       color:#111;
-      font-size:18px;
-      line-height:1.55;
+      font-size:16px;
+      line-height:1;
     }
     .close-btn{
       position:absolute;top:20px;right:20px;border:0;background:transparent;
