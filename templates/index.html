@@ -6,182 +6,502 @@
   <link rel="icon" type="image/png" sizes="256x256" href="/static/aiornot-logo-256.png">
   <link rel="shortcut icon" href="/static/aiornot-logo-256.png">
   <link rel="apple-touch-icon" href="/static/aiornot-logo-256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <title>AIorNot</title>
   <style>
-    :root{--bg:#fff;--text:#111;--muted:#777;--line:#ddd;--soft:#f6f6f6;--dark:#111}
+    :root{
+      --paper:#fafaf8;
+      --surface:#ffffff;
+      --ink:#171716;
+      --muted:#6e6d69;
+      --muted-strong:#4f4e4b;
+      --line:rgba(23,23,22,.13);
+      --line-strong:rgba(23,23,22,.28);
+      --soft:#f1f1ed;
+      --accent:#eb5b38;
+      --accent-soft:#fff0eb;
+      --real:#26765f;
+      --real-soft:#edf8f3;
+      --uncertain:#9a681a;
+      --uncertain-soft:#fff7e9;
+      --shadow:0 14px 38px rgba(23,23,22,.08), 0 2px 7px rgba(23,23,22,.05);
+    }
+
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+
+    html{background:var(--paper)}
+
+    body{
+      min-width:320px;
+      margin:0;
+      overflow-x:hidden;
+      background:
+        radial-gradient(circle at 50% -16%, rgba(235,91,56,.055), transparent 34rem),
+        var(--paper);
+      color:var(--ink);
+      font-family:"Manrope",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-feature-settings:"kern" 1,"liga" 1,"tnum" 1;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+
+    button,input{font:inherit}
+
+    button{touch-action:manipulation}
+
+    button:focus-visible{
+      outline:2px solid var(--accent);
+      outline-offset:3px;
+    }
 
     .menu-btn{
-      position:fixed;top:22px;left:22px;width:38px;height:38px;
-      border:1px solid var(--line);background:#fff;border-radius:10px;
-      display:grid;place-content:center;gap:4px;cursor:pointer;z-index:20
+      position:fixed;
+      top:20px;
+      left:20px;
+      z-index:30;
+      display:grid;
+      width:42px;
+      height:42px;
+      place-content:center;
+      gap:4px;
+      padding:0;
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:rgba(255,255,255,.92);
+      box-shadow:0 2px 9px rgba(23,23,22,.045);
+      cursor:pointer;
+      transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+      backdrop-filter:blur(8px);
     }
-    .menu-btn span{display:block;width:15px;height:1.5px;background:#111}
+
+    .menu-btn:hover{
+      border-color:var(--line-strong);
+      box-shadow:0 5px 15px rgba(23,23,22,.09);
+      transform:translateY(-1px);
+    }
+
+    .menu-btn:active{transform:translateY(0)}
+
+    .menu-btn span{
+      display:block;
+      width:16px;
+      height:1.5px;
+      border-radius:10px;
+      background:var(--ink);
+      transition:transform .2s ease,opacity .2s ease;
+    }
+
+    body.menu-open .menu-btn span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+    body.menu-open .menu-btn span:nth-child(2){opacity:0}
+    body.menu-open .menu-btn span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+
+    .menu-scrim{
+      position:fixed;
+      z-index:19;
+      inset:0;
+      visibility:hidden;
+      background:rgba(23,23,22,.22);
+      opacity:0;
+      transition:opacity .22s ease,visibility .22s ease;
+    }
+
+    body.menu-open .menu-scrim{
+      visibility:visible;
+      opacity:1;
+    }
 
     .side-panel{
-      position:fixed;inset:0 auto 0 0;width:min(330px,88vw);
-      padding:78px 28px 30px;background:#fff;border-right:1px solid var(--line);
-      transform:translateX(-100%);transition:transform .2s ease;z-index:15
+      position:fixed;
+      z-index:25;
+      inset:0 auto 0 0;
+      width:min(344px,88vw);
+      padding:88px 30px 32px;
+      overflow-y:auto;
+      border-right:1px solid var(--line);
+      background:rgba(255,255,255,.98);
+      box-shadow:18px 0 46px rgba(23,23,22,.12);
+      transform:translateX(-104%);
+      transition:transform .26s cubic-bezier(.2,.72,.22,1);
+      -webkit-backdrop-filter:blur(16px);
+      backdrop-filter:blur(16px);
     }
+
     .side-panel.open{transform:translateX(0)}
-    .side-panel h2{margin:0 0 22px;font-size:22px}
-    .side-panel .next-title{margin-top:34px}
-    .side-panel p{max-width:100%;} 
+
+    .side-panel h2{
+      margin:0 0 19px;
+      color:var(--ink);
+      font-family:"Space Grotesk",sans-serif;
+      font-size:20px;
+      font-weight:600;
+      letter-spacing:-.045em;
+    }
+
+    .side-panel .next-title{margin-top:39px}
+
     .side-panel p{
       display:grid;
-      grid-template-columns:22px minmax(0,1fr);
+      grid-template-columns:18px minmax(0,1fr);
+      column-gap:6px;
       align-items:start;
-      column-gap:0;
-      margin:0 0 15px;
-      color:#555;
-      line-height:1.55;
-      font-size:14px;
+      margin:0 0 14px;
+      color:var(--muted-strong);
+      font-size:13px;
+      line-height:1.65;
     }
+
     .side-panel p::before{
-      content:'•';
-      width:22px;
-      height:22px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#111;
-      font-size:16px;
-      line-height:1;
+      content:"";
+      width:5px;
+      height:5px;
+      margin-top:.5em;
+      border-radius:50%;
+      background:var(--accent);
     }
+
     .close-btn{
-      position:absolute;top:20px;right:20px;border:0;background:transparent;
-      font-size:26px;cursor:pointer
+      position:absolute;
+      top:20px;
+      right:20px;
+      display:grid;
+      width:36px;
+      height:36px;
+      place-content:center;
+      padding:0;
+      border:1px solid transparent;
+      border-radius:9px;
+      background:transparent;
+      color:var(--ink);
+      font-size:24px;
+      line-height:1;
+      cursor:pointer;
+      transition:background .18s ease,border-color .18s ease;
+    }
+
+    .close-btn:hover{
+      border-color:var(--line);
+      background:var(--soft);
     }
 
     .page{
-      min-height:100vh;display:flex;flex-direction:column;align-items:center;
-      padding:90px 22px 60px;
-      transition:transform .28s ease
+      display:flex;
+      min-height:100vh;
+      flex-direction:column;
+      align-items:center;
+      padding:99px 22px 66px;
+      transition:transform .3s cubic-bezier(.2,.72,.22,1);
     }
-    .hero{text-align:center;max-width:720px}
+
+    .hero{
+      max-width:720px;
+      text-align:center;
+    }
+
     .hero h1{
-      font-size:clamp(56px,10vw,92px);line-height:1;margin:0;font-weight:800;
-      letter-spacing:-.06em
+      margin:0;
+      color:var(--ink);
+      font-family:"Space Grotesk","Manrope",sans-serif;
+      font-size:clamp(56px,10vw,92px);
+      font-weight:600;
+      letter-spacing:-.085em;
+      line-height:.93;
     }
-    .hero p{margin:18px 0 0;font-size:20px;color:#555}
 
-    .analyzer{width:min(760px,100%);margin-top:64px}
+    .hero p{
+      margin:21px 0 0;
+      color:var(--muted-strong);
+      font-size:clamp(16px,2.25vw,19px);
+      font-weight:500;
+      letter-spacing:-.025em;
+      line-height:1.45;
+    }
 
-    /* Desktop keeps the original horizontal layout. */
+    .analyzer{
+      width:min(760px,100%);
+      margin-top:67px;
+    }
+
     .upload-area{
       display:grid;
-      grid-template-columns:auto minmax(34px,70px) auto;
+      grid-template-columns:auto minmax(50px,76px) auto;
       align-items:center;
       justify-content:center;
-      column-gap:18px;
       width:100%;
+      column-gap:16px;
     }
 
     .upload-btn,.analyze-btn{
-      height:48px;padding:0 20px;border-radius:10px;border:1px solid #111;
-      font:inherit;font-weight:650;cursor:pointer
+      height:50px;
+      padding:0 21px;
+      border-radius:9px;
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:-.02em;
+      cursor:pointer;
+      transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,color .18s ease,transform .18s ease;
     }
-    .upload-btn{background:#111;color:#fff}
-    .analyze-btn{background:#fff;color:#111}
-    .analyze-btn:disabled{opacity:.4;cursor:default}
+
+    .upload-btn{
+      border:1px solid var(--ink);
+      background:var(--ink);
+      color:#fff;
+      box-shadow:0 5px 0 rgba(23,23,22,.13);
+    }
+
+    .upload-btn:hover{
+      background:#30302e;
+      box-shadow:0 7px 14px rgba(23,23,22,.15);
+      transform:translateY(-1px);
+    }
+
+    .upload-btn:active{
+      box-shadow:0 2px 0 rgba(23,23,22,.13);
+      transform:translateY(2px);
+    }
+
+    .analyze-btn{
+      border:1px solid var(--line-strong);
+      background:rgba(255,255,255,.7);
+      color:var(--ink);
+    }
+
+    .analyze-btn:not(:disabled):hover{
+      border-color:var(--ink);
+      background:var(--ink);
+      box-shadow:0 7px 14px rgba(23,23,22,.13);
+      color:#fff;
+      transform:translateY(-1px);
+    }
+
+    .analyze-btn:not(:disabled):active{transform:translateY(1px)}
+
+    .analyze-btn:disabled{
+      border-color:var(--line);
+      background:rgba(255,255,255,.46);
+      color:rgba(23,23,22,.38);
+      cursor:not-allowed;
+    }
 
     .arrow{
-      color:#999;font-size:24px;white-space:nowrap;
-      text-align:center;line-height:1;display:flex;
-      align-items:center;justify-content:center
-    }
-    .arrow-dots{letter-spacing:2px}
-    .arrow-symbol{margin-left:2px}
-
-    .file-name{
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
-      margin:18px 0 0;
-      color:#555;
-      font-size:14px;
+      color:var(--muted);
+      font-size:21px;
+      line-height:1;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    .arrow-dots{
+      position:relative;
+      display:block;
+      width:39px;
+      height:1px;
+      margin-right:4px;
+      background:repeating-linear-gradient(90deg,var(--line-strong) 0 2px,transparent 2px 6px);
+    }
+
+    .arrow-symbol{
+      display:block;
+      margin-left:0;
+      font-family:"DM Mono",monospace;
+      font-size:20px;
+      font-weight:500;
+    }
+
+    .file-name{
+      display:flex;
       min-height:40px;
-      word-break:break-word
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      margin:20px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:500;
+      word-break:break-word;
     }
 
     .file-icon{
-      width:14px;
-      height:14px;
-      flex:0 0 14px;
       display:block;
-      border:1px solid #999;
-      background:repeating-linear-gradient(
-        45deg,
-        transparent 0,
-        transparent 2px,
-        #999 2px,
-        #999 3px
-      );
+      width:14px;
+      height:16px;
+      flex:0 0 14px;
+      border:1px solid var(--line-strong);
+      border-radius:2px;
+      background:
+        linear-gradient(135deg,transparent 0 57%,var(--line-strong) 58% 60%,transparent 61%) top right/5px 5px no-repeat,
+        repeating-linear-gradient(45deg,transparent 0,transparent 2px,rgba(23,23,22,.22) 2px,rgba(23,23,22,.22) 3px);
     }
 
-    /* Compact Drive-style selected-file card. */
     .preview{
-      width:80%;
-      margin:22px auto 0;
       display:none;
+      width:min(84%,640px);
+      margin:20px auto 0;
+      overflow:hidden;
       border:1px solid var(--line);
       border-radius:10px;
-      overflow:hidden;
-      background:#fff
+      background:rgba(255,255,255,.82);
+      box-shadow:0 9px 24px rgba(23,23,22,.04);
     }
+
     .preview-meta{
       display:flex;
+      min-height:62px;
       align-items:center;
-      gap:10px;
-      min-height:58px;
-      padding:9px 12px;
-      color:#666;
+      gap:11px;
+      padding:10px 12px;
+      color:var(--muted-strong);
       font-size:13px;
+      font-weight:600;
     }
+
     .preview-meta img{
       display:block;
-      width:40px;
-      height:40px;
-      object-fit:cover;
-      border-radius:6px;
+      width:42px;
+      height:42px;
+      flex:0 0 42px;
+      border:1px solid var(--line);
+      border-radius:7px;
       background:var(--soft);
-      flex:0 0 40px;
+      object-fit:cover;
     }
+
     .preview-filename{
-      flex:1;
       min-width:0;
+      flex:1;
       overflow:hidden;
       text-overflow:ellipsis;
-      white-space:nowrap
-    }
-    .preview-kind{
-      font-size:12px;
-      color:#999
+      white-space:nowrap;
     }
 
-    .status{text-align:center;margin-top:20px;color:#666;font-size:13px;min-height:20px}
+    .preview-kind{
+      padding:4px 7px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      font-family:"DM Mono",monospace;
+      font-size:10px;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+
+    .status{
+      min-height:20px;
+      margin-top:20px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
+      line-height:1.5;
+      text-align:center;
+    }
+
+    .status[data-state="ready"]{color:var(--real)}
+    .status[data-state="error"]{color:#bb4026}
+    .status[data-state="pending"]{color:var(--uncertain)}
 
     .result{
-      margin-top:38px;padding-top:32px;border-top:1px solid var(--line);
-      text-align:center
+      position:relative;
+      display:grid;
+      justify-items:center;
+      margin-top:39px;
+      padding:30px 20px 27px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.74);
+      box-shadow:var(--shadow);
+      text-align:center;
     }
-    .result-label{font-size:30px;font-weight:750;letter-spacing:-.03em}
-    .score{margin-top:10px;font-size:20px;color:#555}
-    .coming{color:#555}
+
+    .result::before{
+      content:"MODEL ESTIMATE";
+      margin-bottom:12px;
+      color:var(--muted);
+      font-family:"DM Mono",monospace;
+      font-size:10px;
+      font-weight:500;
+      letter-spacing:.08em;
+    }
+
+    .result::after{
+      position:absolute;
+      right:auto;
+      bottom:0;
+      left:0;
+      width:var(--confidence,0%);
+      max-width:100%;
+      height:3px;
+      content:"";
+      background:var(--result-color,var(--ink));
+      transition:width .45s cubic-bezier(.2,.72,.22,1);
+    }
+
+    .result[data-status="ai-generated"]{
+      --result-color:var(--accent);
+      border-color:rgba(235,91,56,.25);
+      background:linear-gradient(135deg,var(--accent-soft),rgba(255,255,255,.86));
+    }
+
+    .result[data-status="likely-real"]{
+      --result-color:var(--real);
+      border-color:rgba(38,118,95,.22);
+      background:linear-gradient(135deg,var(--real-soft),rgba(255,255,255,.86));
+    }
+
+    .result[data-status="uncertain"]{
+      --result-color:var(--uncertain);
+      border-color:rgba(154,104,26,.22);
+      background:linear-gradient(135deg,var(--uncertain-soft),rgba(255,255,255,.86));
+    }
+
+    .result[data-status="error"]{--result-color:#bb4026}
+
+    .result-label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      color:var(--ink);
+      font-family:"Space Grotesk","Manrope",sans-serif;
+      font-size:clamp(25px,4vw,32px);
+      font-weight:600;
+      letter-spacing:-.055em;
+      line-height:1.1;
+    }
+
+    .result-label::before{
+      width:8px;
+      height:8px;
+      flex:0 0 8px;
+      border-radius:50%;
+      background:var(--result-color,var(--ink));
+      box-shadow:0 0 0 4px color-mix(in srgb,var(--result-color,var(--ink)) 12%,transparent);
+      content:"";
+    }
+
+    .score{
+      margin-top:10px;
+      color:var(--muted-strong);
+      font-family:"DM Mono",monospace;
+      font-size:12px;
+      font-weight:500;
+      letter-spacing:.015em;
+    }
 
     @media(min-width:601px){
-      .page.guide-open{
-        transform:translateX(165px);
-      }
+      .page.guide-open{transform:translateX(165px)}
     }
 
     @media(max-width:600px){
+      .menu-btn{top:16px;left:16px}
       .page{padding:105px 16px 60px}
-      .analyzer{margin-top:46px}
+      .hero h1{letter-spacing:-.075em}
+      .analyzer{margin-top:49px}
 
-      /* Keep Choose file, arrow, and Analyze on one aligned row. */
       .upload-area{
         display:flex;
         flex-direction:column;
@@ -192,47 +512,48 @@
 
       .upload-btn,.analyze-btn{
         width:auto;
-        min-width:185px;
-        padding:0 20px
+        min-width:190px;
+        padding:0 20px;
       }
 
       .arrow{
-        font-size:20px;
-        height:22px;
         flex-direction:column;
+        height:23px;
       }
 
-      /* On phones, use only a centered downward arrow. */
-      .arrow-dots{
-        display:none;
-      }
+      .arrow-dots{display:none}
 
       .arrow-symbol{
-        display:block;
         margin:0;
+        font-size:19px;
         line-height:1;
         transform:rotate(90deg);
       }
 
       .file-name{
+        width:100%;
         justify-content:center;
         text-align:center;
-        width:100%;
-        font-size:13px;
       }
 
-      .preview{margin:18px auto 0}
+      .preview{width:100%;margin-top:18px}
+      .result{padding-right:16px;padding-left:16px}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
     }
   </style>
 </head>
 <body>
-  <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+  <button class="menu-btn" id="menuBtn" aria-label="Open guide" aria-controls="sidePanel" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
+  <div class="menu-scrim" id="menuScrim" aria-hidden="true"></div>
 
-  <aside class="side-panel" id="sidePanel" aria-hidden="true">
-    <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-    <h2>How it works?</h2>
+  <aside class="side-panel" id="sidePanel" aria-hidden="true" aria-label="How AIorNot works">
+    <button class="close-btn" id="closeBtn" aria-label="Close guide">×</button>
+    <h2>How it works</h2>
     <p>Upload an image.</p>
     <p>AIorNot analyzes it with an image classification model.</p>
     <p>It estimates whether the image is likely real or synthetic.</p>
@@ -241,13 +562,13 @@
     <p>Video and audio analysis are being added.</p>
   </aside>
 
-  <main class="page">
+  <main class="page" id="mainContent">
     <section class="hero">
       <h1>AIorNot</h1>
       <p>Real or rendered? Let’s see.</p>
     </section>
 
-    <section class="analyzer">
+    <section class="analyzer" aria-label="Image analyzer">
       <input
         id="fileInput"
         type="file"
@@ -257,17 +578,15 @@
 
       <div class="upload-area">
         <button class="upload-btn" id="uploadBtn" type="button">Choose file</button>
-        <div class="arrow" aria-hidden="true"><span class="arrow-dots">····</span><span class="arrow-symbol">→</span></div>
+        <div class="arrow" aria-hidden="true"><span class="arrow-dots"></span><span class="arrow-symbol">→</span></div>
         <button class="analyze-btn" id="analyzeBtn" type="button" disabled>Analyze</button>
       </div>
 
       <div class="file-name" id="fileName">No file selected</div>
-
       <div class="preview" id="preview"></div>
+      <div class="status" id="status" aria-live="polite" role="status"></div>
 
-      <div class="status" id="status"></div>
-
-      <div class="result" id="result" hidden>
+      <div class="result" id="result" hidden aria-live="polite">
         <div class="result-label" id="resultLabel"></div>
         <div class="score" id="resultScore"></div>
       </div>
@@ -285,26 +604,32 @@
     const resultLabel=document.getElementById('resultLabel');
     const resultScore=document.getElementById('resultScore');
     const menuBtn=document.getElementById('menuBtn');
+    const menuScrim=document.getElementById('menuScrim');
     const sidePanel=document.getElementById('sidePanel');
     const closeBtn=document.getElementById('closeBtn');
     const page=document.querySelector('.page');
-
     let uploaded=null;
+    let previewUrl=null;
 
-    menuBtn.onclick=()=>{
-      sidePanel.classList.add('open');
-      sidePanel.setAttribute('aria-hidden','false');
-      page.classList.add('guide-open');
-    };
+    function setMenuOpen(isOpen){
+      sidePanel.classList.toggle('open',isOpen);
+      sidePanel.setAttribute('aria-hidden',String(!isOpen));
+      menuBtn.setAttribute('aria-expanded',String(isOpen));
+      page.classList.toggle('guide-open',isOpen);
+      document.body.classList.toggle('menu-open',isOpen);
+      if(isOpen) closeBtn.focus();
+      else menuBtn.focus();
+    }
 
-    closeBtn.onclick=()=>{
-      sidePanel.classList.remove('open');
-      sidePanel.setAttribute('aria-hidden','true');
-      page.classList.remove('guide-open');
-    };
+    menuBtn.addEventListener('click',()=>setMenuOpen(true));
+    closeBtn.addEventListener('click',()=>setMenuOpen(false));
+    menuScrim.addEventListener('click',()=>setMenuOpen(false));
+    document.addEventListener('keydown',(event)=>{
+      if(event.key==='Escape'&&sidePanel.classList.contains('open')) setMenuOpen(false);
+    });
 
-    uploadBtn.onclick=()=>fileInput.click();
-    fileInput.onchange=()=>chooseFile(fileInput.files[0]);
+    uploadBtn.addEventListener('click',()=>fileInput.click());
+    fileInput.addEventListener('change',()=>chooseFile(fileInput.files[0]));
 
     function fmt(bytes){
       if(bytes<1024)return bytes+' B';
@@ -316,19 +641,30 @@
       return name.includes('.')?name.split('.').pop().toLowerCase():'';
     }
 
+    function setStatus(message,state=''){
+      statusEl.textContent=message;
+      if(state) statusEl.dataset.state=state;
+      else delete statusEl.dataset.state;
+    }
+
     function setFileName(name,size){
       fileName.innerHTML='';
-
       const icon=document.createElement('span');
       icon.className='file-icon';
       icon.setAttribute('aria-hidden','true');
-
       const label=document.createElement('span');
       label.textContent=name+' • '+fmt(size);
-      label.style.cssText=
-        'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-
+      label.style.cssText='min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
       fileName.append(icon,label);
+    }
+
+    function resetPreview(){
+      if(previewUrl){
+        URL.revokeObjectURL(previewUrl);
+        previewUrl=null;
+      }
+      preview.style.display='none';
+      preview.innerHTML='';
     }
 
     function chooseFile(file){
@@ -337,27 +673,26 @@
       uploaded=null;
       analyzeBtn.disabled=true;
       result.hidden=true;
-      statusEl.textContent='';
-
-      const e=ext(file.name);
-
-      preview.style.display='none';
-      preview.innerHTML='';
-
+      result.dataset.status='';
+      result.style.removeProperty('--confidence');
+      resultLabel.textContent='';
+      resultScore.textContent='';
+      setStatus('');
+      resetPreview();
       setFileName(file.name,file.size);
 
-      if(['jpg','jpeg','png','webp'].includes(e)){
+      const extension=ext(file.name);
+      if(['jpg','jpeg','png','webp'].includes(extension)){
+        previewUrl=URL.createObjectURL(file);
         const img=document.createElement('img');
-        img.src=URL.createObjectURL(file);
-        img.alt='Uploaded image thumbnail';
+        img.src=previewUrl;
+        img.alt='Preview of uploaded image';
 
         const meta=document.createElement('div');
         meta.className='preview-meta';
-
         const filename=document.createElement('span');
         filename.className='preview-filename';
         filename.textContent=file.name;
-
         const kind=document.createElement('span');
         kind.className='preview-kind';
         kind.textContent='Image';
@@ -371,74 +706,99 @@
     }
 
     async function upload(file){
-      statusEl.textContent='Uploading…';
-
+      setStatus('Uploading…','pending');
       const fd=new FormData();
       fd.append('media',file);
 
       try{
-        const r=await fetch('/api/upload',{
-          method:'POST',
-          body:fd
-        });
+        const response=await fetch('/api/upload',{method:'POST',body:fd});
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||'Upload failed.');
 
-        const d=await r.json();
-
-        if(!r.ok)throw new Error(d.error||'Upload failed.');
-
-        uploaded=d;
-        setFileName(d.filename,d.size);
-
-        if(d.kind==='image'){
+        uploaded=data;
+        setFileName(data.filename,data.size);
+        if(data.kind==='image'){
           analyzeBtn.disabled=false;
-          statusEl.textContent='Ready to analyze.';
+          setStatus('Ready to analyze.','ready');
         }else{
           analyzeBtn.disabled=true;
-          statusEl.textContent=
-            'Analysis coming soon — image analysis is available now; video/audio analysis is being added.';
+          setStatus('Analysis coming soon — image analysis is available now; video and audio analysis are being added.','pending');
         }
-      }catch(err){
-        statusEl.textContent=err.message;
+      }catch(error){
+        setStatus(error.message,'error');
       }
     }
 
-    analyzeBtn.onclick=async()=>{
-      if(!uploaded)return;
+    function presentationFor(data){
+      if(data.status==='AI-GENERATED') return {label:'Likely AI-generated',status:'ai-generated'};
+      if(data.status==='LIKELY_REAL') return {label:'Likely real',status:'likely-real'};
+      if(data.status==='UNCERTAIN') return {label:'Analysis inconclusive',status:'uncertain'};
+      return {label:data.label||'Result',status:'neutral'};
+    }
 
-      analyzeBtn.disabled=true;
-      fileInput.disabled=true;
-      statusEl.textContent='Analyzing…';
+    function probabilityText(value){
+      const probability=Number(value);
+      if(!Number.isFinite(probability))return '';
+      return Number.isInteger(probability)?String(probability):probability.toFixed(1);
+    }
+
+    function renderResult(data){
+      const presentation=presentationFor(data);
+      const score=Number(data.score);
+      const hasScore=Number.isFinite(score);
+      const fakeProbability=probabilityText(data.fake_probability);
+      const realProbability=probabilityText(data.real_probability);
+      let scoreText='';
+
+      if(presentation.status==='ai-generated'&&hasScore){
+        scoreText=`${Math.round(score)}% AI-generated model score`;
+      }else if(presentation.status==='likely-real'&&hasScore){
+        scoreText=`${Math.round(score)}% real model score`;
+      }else if(presentation.status==='uncertain'&&fakeProbability&&realProbability){
+        scoreText=`Mixed signals: ${fakeProbability}% AI · ${realProbability}% real`;
+      }else if(hasScore){
+        scoreText=`${Math.round(score)}% model score`;
+      }
 
       result.hidden=false;
-      resultLabel.textContent='';
-      resultScore.textContent='';
+      result.dataset.status=presentation.status;
+      result.style.setProperty('--confidence',hasScore?`${Math.min(100,Math.max(0,score))}%`:'0%');
+      resultLabel.textContent=presentation.label;
+      resultScore.textContent=scoreText;
+      resultScore.title='This is a model estimate, not a guarantee of authenticity.';
+    }
+
+    analyzeBtn.addEventListener('click',async()=>{
+      if(!uploaded)return;
+      analyzeBtn.disabled=true;
+      fileInput.disabled=true;
+      setStatus('Analyzing…','pending');
 
       const fd=new FormData();
       fd.append('stored_name',uploaded.stored_name);
       fd.append('filename',uploaded.filename);
 
       try{
-        const r=await fetch('/api/analyze',{
-          method:'POST',
-          body:fd
-        });
+        const response=await fetch('/api/analyze',{method:'POST',body:fd});
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||'Analysis failed.');
 
-        const d=await r.json();
-
-        if(!r.ok)throw new Error(d.error||'Analysis failed.');
-
-        resultLabel.textContent=d.label||'Result';
-        resultScore.textContent=
-          d.score==null?'':(d.score+'% confidence');
-        statusEl.textContent='';
-      }catch(err){
+        renderResult(data);
+        setStatus('');
+      }catch(error){
+        result.hidden=false;
+        result.dataset.status='error';
+        result.style.setProperty('--confidence','0%');
         resultLabel.textContent='Analysis unavailable';
-        statusEl.textContent=err.message;
+        resultScore.textContent='';
+        setStatus(error.message,'error');
       }finally{
         analyzeBtn.disabled=false;
         fileInput.disabled=false;
       }
-    };
+    });
+
+    window.addEventListener('beforeunload',resetPreview);
   </script>
 </body>
 </html>
