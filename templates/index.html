@@ -244,9 +244,10 @@
     }
 
     .theme-btn{
-      position:absolute;
+      position:fixed;
       top:20px;
       right:20px;
+      z-index:30;
       display:grid;
       width:36px;
       height:36px;
@@ -321,16 +322,15 @@
     }
 
     .upload-area{
-      display:grid;
-      grid-template-columns:auto minmax(50px,76px) auto;
+      display:flex;
       align-items:center;
       justify-content:center;
+      gap:12px;
       width:100%;
-      column-gap:16px;
     }
 
     .upload-btn,.analyze-btn{
-      height:50px;
+      height:44px;
       padding:0 21px;
       border-radius:9px;
       font-size:14px;
@@ -628,11 +628,7 @@
     }
 
     .result-detail{
-      max-width:620px;
-      margin-top:10px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.55;
+      display:none;
     }
 
 
@@ -648,28 +644,32 @@
 
       .upload-area{
         display:flex;
-        flex-direction:column;
+        flex-wrap:wrap;
+        flex-direction:row;
         align-items:center;
         justify-content:center;
-        gap:10px;
+        gap:8px;
       }
 
       .upload-btn,.analyze-btn{
         width:auto;
-        min-width:190px;
-        padding:0 20px;
+        min-width:0;
+        height:42px;
+        padding:0 15px;
       }
 
       .arrow{
-        flex-direction:column;
-        height:23px;
+        height:42px;
       }
 
-      .arrow-dots{display:none}
+      .arrow-dots{
+        width:20px;
+      }
 
       .arrow-symbol{
-        margin:0;
-        transform:rotate(90deg);
+        width:12px;
+        height:12px;
+        margin-left:3px;
       }
 
       .file-name{
@@ -693,24 +693,25 @@
   </button>
   <div class="menu-scrim" id="menuScrim" aria-hidden="true"></div>
 
-  <aside class="side-panel" id="sidePanel" aria-hidden="true" aria-label="How AIorNot works">
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode">
-      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"></path>
-      </svg>
-      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="3.5"></circle>
-        <path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3"></path>
-      </svg>
-    </button>
-    <h2>How it works</h2>
-    <p>Upload an image.</p>
-    <p>AIorNot analyzes it with an image classification model.</p>
-    <p>It estimates whether the image is likely real or synthetic.</p>
+  <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode">
+    <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"></path>
+    </svg>
+    <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.5"></circle>
+      <path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3"></path>
+    </svg>
+  </button>
 
-    <h2 class="next-title">What’s next?</h2>
-    <p>Video can be scanned from browser-extracted frames or analyzed by the optional AIorNot cloud provider.</p>
-    <p>Audio analysis requires the configured AIorNot provider.</p>
+  <aside class="side-panel" id="sidePanel" aria-hidden="true" aria-label="How AIorNot works">
+    <h2>How it works</h2>
+    <p>Upload an image or video.</p>
+    <p>AIorNot analyzes the selected media with a detection model.</p>
+    <p>It estimates whether the media is likely real or synthetic.</p>
+
+    <h2 class="next-title">What’s new?</h2>
+    <p>Image and browser-based video analysis are available now.</p>
+    <p>Audio analysis coming soon.</p>
   </aside>
 
   <main class="page" id="mainContent">
@@ -976,9 +977,9 @@
       let scoreText='';
 
       if(presentation.status==='ai-generated'&&hasScore){
-        scoreText=`${Math.round(score)}% AI-generated model score`;
+        scoreText=`${Math.round(score)}% AI`;
       }else if(presentation.status==='likely-real'&&hasScore){
-        scoreText=`${Math.round(score)}% real model score`;
+        scoreText=`${Math.round(score)}% real`;
       }else if(presentation.status==='uncertain'&&fakeProbability&&realProbability){
         scoreText=`Mixed signals: ${fakeProbability}% AI · ${realProbability}% real`;
       }else if(hasScore){
@@ -990,7 +991,7 @@
       result.style.setProperty('--confidence',hasScore?`${Math.min(100,Math.max(0,score))}%`:'0%');
       resultLabel.textContent=presentation.label;
       resultScore.textContent=scoreText;
-      resultDetail.textContent=buildDetail(data);
+      resultDetail.textContent='';
       resultScore.title='This is a model estimate, not a guarantee of authenticity.';
     }
 
