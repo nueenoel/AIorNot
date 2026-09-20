@@ -62,9 +62,12 @@
     .analyze-btn:disabled{opacity:.4;cursor:default}
 
     .arrow{
-      color:#999;letter-spacing:2px;font-size:24px;white-space:nowrap;
-      text-align:center;line-height:1
+      color:#999;font-size:24px;white-space:nowrap;
+      text-align:center;line-height:1;display:flex;
+      align-items:center;justify-content:center
     }
+    .arrow-dots{letter-spacing:2px}
+    .arrow-symbol{margin-left:2px}
 
     .file-name{
       display:flex;
@@ -138,18 +141,34 @@
 
       /* Keep Choose file, arrow, and Analyze on one aligned row. */
       .upload-area{
-        grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);
-        column-gap:8px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
       }
 
       .upload-btn,.analyze-btn{
-        width:100%;
-        padding:0 12px
+        width:auto;
+        min-width:185px;
+        padding:0 20px
       }
 
       .arrow{
-        font-size:18px;
-        letter-spacing:1px
+        font-size:20px;
+        height:22px;
+        flex-direction:column;
+      }
+
+      .arrow-dots{
+        letter-spacing:2px;
+        line-height:8px;
+      }
+
+      .arrow-symbol{
+        margin-left:0;
+        line-height:12px;
+        transform:translateY(-1px);
       }
 
       .file-name{
@@ -192,7 +211,7 @@
 
       <div class="upload-area">
         <button class="upload-btn" id="uploadBtn" type="button">Choose file</button>
-        <div class="arrow" aria-hidden="true">····→</div>
+        <div class="arrow" aria-hidden="true"><span class="arrow-dots">····</span><span class="arrow-symbol">→</span></div>
         <button class="analyze-btn" id="analyzeBtn" type="button" disabled>Analyze</button>
       </div>
 
