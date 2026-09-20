@@ -4,13 +4,25 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --workers 1 --threads 1 --timeout 120 app:app
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 1 --timeout 120 app:app
     envVars:
       - key: OMP_NUM_THREADS
         value: "1"
-      - key: MKL_NUM_THREADS
-        value: "1"
       - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
         value: "1"
       - key: TOKENIZERS_PARALLELISM
         value: "false"
+      - key: IMAGE_MAX_BYTES
+        value: "15728640"
+      - key: VIDEO_MAX_BYTES
+        value: "26214400"
+      - key: AUDIO_MAX_BYTES
+        value: "10485760"
+      - key: UPLOAD_TOTAL_QUOTA_BYTES
+        value: "104857600"
+      - key: UPLOAD_RETENTION_SECONDS
+        value: "3600"
+      - key: AIORNOT_API_KEY
+        sync: false
