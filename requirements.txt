@@ -4,4 +4,6 @@ Pillow>=10,<13
 numpy>=1.26,<3
 onnxruntime>=1.20,<2
 huggingface-hub>=0.30,<2
+requests>=2.32,<3
 gunicorn>=23,<24
+pytest>=8,<9
