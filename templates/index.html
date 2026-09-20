@@ -24,7 +24,24 @@
     }
     .side-panel.open{transform:translateX(0)}
     .side-panel h2{margin:0 0 22px;font-size:22px}
-    .side-panel p{margin:0 0 15px;color:#555;line-height:1.55;font-size:14px}
+    .side-panel .next-title{margin-top:34px}
+    .side-panel p{
+      position:relative;
+      margin:0 0 15px;
+      padding-left:22px;
+      color:#555;
+      line-height:1.55;
+      font-size:14px
+    }
+    .side-panel p::before{
+      content:'•';
+      position:absolute;
+      left:2px;
+      top:0;
+      color:#111;
+      font-size:18px;
+      line-height:1.55;
+    }
     .close-btn{
       position:absolute;top:20px;right:20px;border:0;background:transparent;
       font-size:26px;cursor:pointer
@@ -187,7 +204,8 @@
     <p>Upload an image.</p>
     <p>AIorNot analyzes it with an image classification model.</p>
     <p>It estimates whether the image is likely real or synthetic.</p>
-    <p>The result is an estimate and can be wrong.</p>
+
+    <h2 class="next-title">What’s next?</h2>
     <p>Video and audio analysis are being added.</p>
   </aside>
 
