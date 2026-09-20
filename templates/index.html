@@ -54,7 +54,8 @@
 
     .page{
       min-height:100vh;display:flex;flex-direction:column;align-items:center;
-      padding:90px 22px 60px
+      padding:90px 22px 60px;
+      transition:transform .28s ease
     }
     .hero{text-align:center;max-width:720px}
     .hero h1{
@@ -103,9 +104,25 @@
       word-break:break-word
     }
 
+    .file-icon{
+      width:14px;
+      height:14px;
+      flex:0 0 14px;
+      display:block;
+      border:1px solid #999;
+      background:repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 2px,
+        #999 2px,
+        #999 3px
+      );
+    }
+
     /* Compact Drive-style selected-file card. */
     .preview{
-      margin-top:22px;
+      width:80%;
+      margin:22px auto 0;
       display:none;
       border:1px solid var(--line);
       border-radius:10px;
@@ -152,6 +169,12 @@
     .score{margin-top:10px;font-size:20px;color:#555}
     .coming{color:#555}
 
+    @media(min-width:601px){
+      .page.guide-open{
+        transform:translateX(165px);
+      }
+    }
+
     @media(max-width:600px){
       .page{padding:105px 16px 60px}
       .analyzer{margin-top:46px}
@@ -196,7 +219,7 @@
         font-size:13px;
       }
 
-      .preview{margin-top:18px}
+      .preview{margin:18px auto 0}
     }
   </style>
 </head>
@@ -262,17 +285,20 @@
     const menuBtn=document.getElementById('menuBtn');
     const sidePanel=document.getElementById('sidePanel');
     const closeBtn=document.getElementById('closeBtn');
+    const page=document.querySelector('.page');
 
     let uploaded=null;
 
     menuBtn.onclick=()=>{
       sidePanel.classList.add('open');
       sidePanel.setAttribute('aria-hidden','false');
+      page.classList.add('guide-open');
     };
 
     closeBtn.onclick=()=>{
       sidePanel.classList.remove('open');
       sidePanel.setAttribute('aria-hidden','true');
+      page.classList.remove('guide-open');
     };
 
     uploadBtn.onclick=()=>fileInput.click();
@@ -292,10 +318,8 @@
       fileName.innerHTML='';
 
       const icon=document.createElement('span');
-      icon.textContent='▧';
+      icon.className='file-icon';
       icon.setAttribute('aria-hidden','true');
-      icon.style.cssText=
-        'font-size:16px;color:#888;line-height:1;flex:0 0 auto';
 
       const label=document.createElement('span');
       label.textContent=name+' • '+fmt(size);
