@@ -10,6 +10,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <title>AIorNot</title>
+  <script>
+    try {
+      if (localStorage.getItem('aiornot-theme') === 'dark') {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (_) {}
+  </script>
   <style>
     :root{
       --paper:#fafaf8;
@@ -22,11 +29,84 @@
       --soft:#f1f1ed;
       --accent:#eb5b38;
       --accent-soft:#fff0eb;
+      --accent-line:rgba(235,91,56,.25);
       --real:#26765f;
       --real-soft:#edf8f3;
+      --real-line:rgba(38,118,95,.22);
       --uncertain:#9a681a;
       --uncertain-soft:#fff7e9;
+      --uncertain-line:rgba(154,104,26,.22);
       --shadow:0 14px 38px rgba(23,23,22,.08), 0 2px 7px rgba(23,23,22,.05);
+      --glow:rgba(235,91,56,.055);
+      --menu-bg:rgba(255,255,255,.92);
+      --menu-shadow:0 2px 9px rgba(23,23,22,.045);
+      --menu-hover-shadow:0 5px 15px rgba(23,23,22,.09);
+      --scrim:rgba(23,23,22,.22);
+      --panel-bg:rgba(255,255,255,.98);
+      --panel-shadow:18px 0 46px rgba(23,23,22,.12);
+      --primary-text:#fff;
+      --primary-hover:#30302e;
+      --primary-shadow:0 5px 0 rgba(23,23,22,.13);
+      --primary-hover-shadow:0 7px 14px rgba(23,23,22,.15);
+      --primary-press-shadow:0 2px 0 rgba(23,23,22,.13);
+      --control-bg:rgba(255,255,255,.7);
+      --control-hover-bg:var(--ink);
+      --control-hover-text:#fff;
+      --control-hover-shadow:0 7px 14px rgba(23,23,22,.13);
+      --control-disabled-bg:rgba(255,255,255,.46);
+      --control-disabled-text:rgba(23,23,22,.38);
+      --file-stripe:rgba(23,23,22,.22);
+      --preview-bg:rgba(255,255,255,.82);
+      --preview-shadow:0 9px 24px rgba(23,23,22,.04);
+      --result-bg:rgba(255,255,255,.74);
+      --result-fade:rgba(255,255,255,.86);
+      --danger:#bb4026;
+    }
+
+    html[data-theme="dark"]{
+      color-scheme:dark;
+      --paper:#121211;
+      --surface:#1b1b19;
+      --ink:#f5f4ef;
+      --muted:#aaa9a2;
+      --muted-strong:#cfcec6;
+      --line:rgba(255,255,255,.13);
+      --line-strong:rgba(255,255,255,.28);
+      --soft:#292925;
+      --accent:#ff7654;
+      --accent-soft:#38231d;
+      --accent-line:rgba(255,118,84,.38);
+      --real:#68c7a5;
+      --real-soft:#17382f;
+      --real-line:rgba(104,199,165,.34);
+      --uncertain:#efbf70;
+      --uncertain-soft:#3a2d18;
+      --uncertain-line:rgba(239,191,112,.34);
+      --shadow:0 14px 38px rgba(0,0,0,.34),0 2px 7px rgba(0,0,0,.22);
+      --glow:rgba(255,118,84,.09);
+      --menu-bg:rgba(27,27,25,.94);
+      --menu-shadow:0 2px 9px rgba(0,0,0,.2);
+      --menu-hover-shadow:0 5px 15px rgba(0,0,0,.34);
+      --scrim:rgba(0,0,0,.52);
+      --panel-bg:rgba(27,27,25,.98);
+      --panel-shadow:18px 0 46px rgba(0,0,0,.34);
+      --primary-text:#121211;
+      --primary-hover:#fffefa;
+      --primary-shadow:0 5px 0 rgba(0,0,0,.28);
+      --primary-hover-shadow:0 7px 14px rgba(0,0,0,.32);
+      --primary-press-shadow:0 2px 0 rgba(0,0,0,.28);
+      --control-bg:rgba(38,38,35,.78);
+      --control-hover-bg:#f5f4ef;
+      --control-hover-text:#121211;
+      --control-hover-shadow:0 7px 14px rgba(0,0,0,.32);
+      --control-disabled-bg:rgba(255,255,255,.07);
+      --control-disabled-text:rgba(245,244,239,.46);
+      --file-stripe:rgba(245,244,239,.3);
+      --preview-bg:rgba(31,31,29,.84);
+      --preview-shadow:0 9px 24px rgba(0,0,0,.2);
+      --result-bg:rgba(28,29,26,.82);
+      --result-fade:rgba(28,29,26,.92);
+      --danger:#ff8067;
     }
 
     *{box-sizing:border-box}
@@ -38,7 +118,7 @@
       margin:0;
       overflow-x:hidden;
       background:
-        radial-gradient(circle at 50% -16%, rgba(235,91,56,.055), transparent 34rem),
+        radial-gradient(circle at 50% -16%, var(--glow), transparent 34rem),
         var(--paper);
       color:var(--ink);
       font-family:"Manrope",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -69,8 +149,8 @@
       padding:0;
       border:1px solid var(--line);
       border-radius:11px;
-      background:rgba(255,255,255,.92);
-      box-shadow:0 2px 9px rgba(23,23,22,.045);
+      background:var(--menu-bg);
+      box-shadow:var(--menu-shadow);
       cursor:pointer;
       transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
       backdrop-filter:blur(8px);
@@ -78,7 +158,7 @@
 
     .menu-btn:hover{
       border-color:var(--line-strong);
-      box-shadow:0 5px 15px rgba(23,23,22,.09);
+      box-shadow:var(--menu-hover-shadow);
       transform:translateY(-1px);
     }
 
@@ -102,7 +182,7 @@
       z-index:19;
       inset:0;
       visibility:hidden;
-      background:rgba(23,23,22,.22);
+      background:var(--scrim);
       opacity:0;
       transition:opacity .22s ease,visibility .22s ease;
     }
@@ -120,8 +200,8 @@
       padding:88px 30px 32px;
       overflow-y:auto;
       border-right:1px solid var(--line);
-      background:rgba(255,255,255,.98);
-      box-shadow:18px 0 46px rgba(23,23,22,.12);
+      background:var(--panel-bg);
+      box-shadow:var(--panel-shadow);
       transform:translateX(-104%);
       transition:transform .26s cubic-bezier(.2,.72,.22,1);
       -webkit-backdrop-filter:blur(16px);
@@ -162,6 +242,45 @@
       background:var(--accent);
       transform:translateY(-50%);
     }
+
+    .theme-btn{
+      position:absolute;
+      top:20px;
+      right:20px;
+      display:grid;
+      width:36px;
+      height:36px;
+      place-items:center;
+      padding:0;
+      border:1px solid var(--line);
+      border-radius:9px;
+      background:transparent;
+      color:var(--ink);
+      cursor:pointer;
+      transition:background .18s ease,border-color .18s ease,transform .18s ease;
+    }
+
+    .theme-btn:hover{
+      border-color:var(--line-strong);
+      background:var(--soft);
+      transform:translateY(-1px);
+    }
+
+    .theme-btn:active{transform:translateY(0)}
+
+    .theme-icon{
+      width:17px;
+      height:17px;
+      fill:none;
+      stroke:currentColor;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      stroke-width:1.75;
+    }
+
+    .theme-icon-sun{display:none}
+    html[data-theme="dark"] .theme-icon-moon{display:none}
+    html[data-theme="dark"] .theme-icon-sun{display:block}
 
     .page{
       display:flex;
@@ -224,32 +343,32 @@
     .upload-btn{
       border:1px solid var(--ink);
       background:var(--ink);
-      color:#fff;
-      box-shadow:0 5px 0 rgba(23,23,22,.13);
+      color:var(--primary-text);
+      box-shadow:var(--primary-shadow);
     }
 
     .upload-btn:hover{
-      background:#30302e;
-      box-shadow:0 7px 14px rgba(23,23,22,.15);
+      background:var(--primary-hover);
+      box-shadow:var(--primary-hover-shadow);
       transform:translateY(-1px);
     }
 
     .upload-btn:active{
-      box-shadow:0 2px 0 rgba(23,23,22,.13);
+      box-shadow:var(--primary-press-shadow);
       transform:translateY(2px);
     }
 
     .analyze-btn{
       border:1px solid var(--line-strong);
-      background:rgba(255,255,255,.7);
+      background:var(--control-bg);
       color:var(--ink);
     }
 
     .analyze-btn:not(:disabled):hover{
       border-color:var(--ink);
-      background:var(--ink);
-      box-shadow:0 7px 14px rgba(23,23,22,.13);
-      color:#fff;
+      background:var(--control-hover-bg);
+      box-shadow:var(--control-hover-shadow);
+      color:var(--control-hover-text);
       transform:translateY(-1px);
     }
 
@@ -257,8 +376,8 @@
 
     .analyze-btn:disabled{
       border-color:var(--line);
-      background:rgba(255,255,255,.46);
-      color:rgba(23,23,22,.38);
+      background:var(--control-disabled-bg);
+      color:var(--control-disabled-text);
       cursor:not-allowed;
     }
 
@@ -336,7 +455,7 @@
       border-radius:2px;
       background:
         linear-gradient(135deg,transparent 0 57%,var(--line-strong) 58% 60%,transparent 61%) top right/5px 5px no-repeat,
-        repeating-linear-gradient(45deg,transparent 0,transparent 2px,rgba(23,23,22,.22) 2px,rgba(23,23,22,.22) 3px);
+        repeating-linear-gradient(45deg,transparent 0,transparent 2px,var(--file-stripe) 2px,var(--file-stripe) 3px);
     }
 
     .preview{
@@ -346,8 +465,8 @@
       overflow:hidden;
       border:1px solid var(--line);
       border-radius:10px;
-      background:rgba(255,255,255,.82);
-      box-shadow:0 9px 24px rgba(23,23,22,.04);
+      background:var(--preview-bg);
+      box-shadow:var(--preview-shadow);
     }
 
     .preview-meta{
@@ -402,7 +521,7 @@
     }
 
     .status[data-state="ready"]{color:var(--real)}
-    .status[data-state="error"]{color:#bb4026}
+    .status[data-state="error"]{color:var(--danger)}
     .status[data-state="pending"]{color:var(--uncertain)}
 
     .result{
@@ -414,7 +533,7 @@
       overflow:hidden;
       border:1px solid var(--line);
       border-radius:12px;
-      background:rgba(255,255,255,.74);
+      background:var(--result-bg);
       box-shadow:var(--shadow);
       text-align:center;
     }
@@ -444,23 +563,23 @@
 
     .result[data-status="ai-generated"]{
       --result-color:var(--accent);
-      border-color:rgba(235,91,56,.25);
-      background:linear-gradient(135deg,var(--accent-soft),rgba(255,255,255,.86));
+      border-color:var(--accent-line);
+      background:linear-gradient(135deg,var(--accent-soft),var(--result-fade));
     }
 
     .result[data-status="likely-real"]{
       --result-color:var(--real);
-      border-color:rgba(38,118,95,.22);
-      background:linear-gradient(135deg,var(--real-soft),rgba(255,255,255,.86));
+      border-color:var(--real-line);
+      background:linear-gradient(135deg,var(--real-soft),var(--result-fade));
     }
 
     .result[data-status="uncertain"]{
       --result-color:var(--uncertain);
-      border-color:rgba(154,104,26,.22);
-      background:linear-gradient(135deg,var(--uncertain-soft),rgba(255,255,255,.86));
+      border-color:var(--uncertain-line);
+      background:linear-gradient(135deg,var(--uncertain-soft),var(--result-fade));
     }
 
-    .result[data-status="error"]{--result-color:#bb4026}
+    .result[data-status="error"]{--result-color:var(--danger)}
 
     .result-label{
       display:flex;
@@ -552,6 +671,15 @@
   <div class="menu-scrim" id="menuScrim" aria-hidden="true"></div>
 
   <aside class="side-panel" id="sidePanel" aria-hidden="true" aria-label="How AIorNot works">
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode">
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"></path>
+      </svg>
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.5"></circle>
+        <path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3"></path>
+      </svg>
+    </button>
     <h2>How it works</h2>
     <p>Upload an image.</p>
     <p>AIorNot analyzes it with an image classification model.</p>
@@ -605,6 +733,7 @@
     const menuBtn=document.getElementById('menuBtn');
     const menuScrim=document.getElementById('menuScrim');
     const sidePanel=document.getElementById('sidePanel');
+    const themeBtn=document.getElementById('themeBtn');
     const page=document.querySelector('.page');
     let uploaded=null;
     let previewUrl=null;
@@ -623,6 +752,22 @@
     menuScrim.addEventListener('click',()=>setMenuOpen(false));
     document.addEventListener('keydown',(event)=>{
       if(event.key==='Escape'&&sidePanel.classList.contains('open')) setMenuOpen(false);
+    });
+
+    function setTheme(theme,save=false){
+      const isDark=theme==='dark';
+      document.documentElement.dataset.theme=isDark?'dark':'light';
+      themeBtn.setAttribute('aria-pressed',String(isDark));
+      themeBtn.setAttribute('aria-label',isDark?'Switch to light mode':'Switch to dark mode');
+      themeBtn.title=isDark?'Switch to light mode':'Switch to dark mode';
+      if(save){
+        try{localStorage.setItem('aiornot-theme',isDark?'dark':'light')}catch(_){}
+      }
+    }
+
+    setTheme(document.documentElement.dataset.theme==='dark'?'dark':'light');
+    themeBtn.addEventListener('click',()=>{
+      setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',true);
     });
 
     uploadBtn.addEventListener('click',()=>fileInput.click());
