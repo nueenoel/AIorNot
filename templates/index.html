@@ -160,15 +160,16 @@
         flex-direction:column;
       }
 
+      /* On phones, use only a centered downward arrow. */
       .arrow-dots{
-        letter-spacing:2px;
-        line-height:8px;
+        display:none;
       }
 
       .arrow-symbol{
-        margin-left:0;
-        line-height:12px;
-        transform:translateY(-1px);
+        display:block;
+        margin:0;
+        line-height:1;
+        transform:rotate(90deg);
       }
 
       .file-name{
