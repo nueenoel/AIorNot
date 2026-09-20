@@ -9,40 +9,163 @@
     :root{--bg:#fff;--text:#111;--muted:#777;--line:#ddd;--soft:#f6f6f6;--dark:#111}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    .menu-btn{position:fixed;top:22px;left:22px;width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:10px;display:grid;place-content:center;gap:4px;cursor:pointer;z-index:20}
+
+    .menu-btn{
+      position:fixed;top:22px;left:22px;width:38px;height:38px;
+      border:1px solid var(--line);background:#fff;border-radius:10px;
+      display:grid;place-content:center;gap:4px;cursor:pointer;z-index:20
+    }
     .menu-btn span{display:block;width:15px;height:1.5px;background:#111}
-    .side-panel{position:fixed;inset:0 auto 0 0;width:min(330px,88vw);padding:78px 28px 30px;background:#fff;border-right:1px solid var(--line);transform:translateX(-100%);transition:transform .2s ease;z-index:15}
+
+    .side-panel{
+      position:fixed;inset:0 auto 0 0;width:min(330px,88vw);
+      padding:78px 28px 30px;background:#fff;border-right:1px solid var(--line);
+      transform:translateX(-100%);transition:transform .2s ease;z-index:15
+    }
     .side-panel.open{transform:translateX(0)}
     .side-panel h2{margin:0 0 22px;font-size:22px}
     .side-panel p{margin:0 0 15px;color:#555;line-height:1.55;font-size:14px}
-    .close-btn{position:absolute;top:20px;right:20px;border:0;background:transparent;font-size:26px;cursor:pointer}
-    .page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:120px 22px 70px}
+    .close-btn{
+      position:absolute;top:20px;right:20px;border:0;background:transparent;
+      font-size:26px;cursor:pointer
+    }
+
+    .page{
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;
+      padding:120px 22px 70px
+    }
     .hero{text-align:center;max-width:720px}
-    .hero h1{font-size:clamp(56px,10vw,92px);line-height:1;margin:0;font-weight:800;letter-spacing:-.06em}
+    .hero h1{
+      font-size:clamp(56px,10vw,92px);line-height:1;margin:0;font-weight:800;
+      letter-spacing:-.06em
+    }
     .hero p{margin:18px 0 0;font-size:20px;color:#555}
+
     .analyzer{width:min(760px,100%);margin-top:64px}
-    .upload-area{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
-    .upload-btn,.analyze-btn{height:48px;padding:0 20px;border-radius:10px;border:1px solid #111;font:inherit;font-weight:650;cursor:pointer}
+
+    /* Desktop keeps the original horizontal layout. */
+    .upload-area{
+      display:grid;
+      grid-template-columns:auto minmax(34px,70px) auto;
+      align-items:center;
+      justify-content:center;
+      column-gap:18px;
+      width:100%;
+    }
+
+    .upload-btn,.analyze-btn{
+      height:48px;padding:0 20px;border-radius:10px;border:1px solid #111;
+      font:inherit;font-weight:650;cursor:pointer
+    }
     .upload-btn{background:#111;color:#fff}
     .analyze-btn{background:#fff;color:#111}
     .analyze-btn:disabled{opacity:.4;cursor:default}
-    .arrow{color:#999;letter-spacing:2px;font-size:24px;white-space:nowrap}
-    .file-name{text-align:center;margin:18px 0 0;color:#555;font-size:14px;min-height:20px;word-break:break-word}
-    .preview{margin-top:28px;display:none;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--soft)}
-    .preview img{display:block;width:100%;max-height:430px;object-fit:contain;background:#fafafa}
-    .preview-meta{padding:10px 14px;color:#666;font-size:12px;border-top:1px solid var(--line)}
+
+    .arrow{
+      color:#999;letter-spacing:2px;font-size:24px;white-space:nowrap;
+      text-align:center;line-height:1
+    }
+
+    .file-name{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin:18px 0 0;
+      color:#555;
+      font-size:14px;
+      min-height:40px;
+      word-break:break-word
+    }
+
+    /* Compact Drive-style selected-file card. */
+    .preview{
+      margin-top:22px;
+      display:none;
+      border:1px solid var(--line);
+      border-radius:10px;
+      overflow:hidden;
+      background:#fff
+    }
+    .preview-meta{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:58px;
+      padding:9px 12px;
+      color:#666;
+      font-size:13px;
+    }
+    .preview-meta img{
+      display:block;
+      width:40px;
+      height:40px;
+      object-fit:cover;
+      border-radius:6px;
+      background:var(--soft);
+      flex:0 0 40px;
+    }
+    .preview-filename{
+      flex:1;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap
+    }
+    .preview-kind{
+      font-size:12px;
+      color:#999
+    }
+
     .status{text-align:center;margin-top:20px;color:#666;font-size:13px;min-height:20px}
-    .result{margin-top:38px;padding-top:32px;border-top:1px solid var(--line);text-align:center}
+
+    .result{
+      margin-top:38px;padding-top:32px;border-top:1px solid var(--line);
+      text-align:center
+    }
     .result-label{font-size:30px;font-weight:750;letter-spacing:-.03em}
     .score{margin-top:10px;font-size:20px;color:#555}
     .message{max-width:620px;margin:14px auto 0;color:#555;line-height:1.5;font-size:14px}
-    .disclaimer{margin:18px auto 0;color:#999;font-size:11px;line-height:1.45;max-width:560px}
+    .disclaimer{
+      margin:18px auto 0;color:#999;font-size:11px;line-height:1.45;
+      max-width:560px
+    }
     .coming{color:#555}
-    @media(max-width:600px){.page{padding-top:105px}.analyzer{margin-top:46px}.arrow{width:100%;font-size:20px}.upload-area{gap:10px}}
+
+    @media(max-width:600px){
+      .page{padding:105px 16px 60px}
+      .analyzer{margin-top:46px}
+
+      /* Keep Choose file, arrow, and Analyze on one aligned row. */
+      .upload-area{
+        grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);
+        column-gap:8px;
+      }
+
+      .upload-btn,.analyze-btn{
+        width:100%;
+        padding:0 12px
+      }
+
+      .arrow{
+        font-size:18px;
+        letter-spacing:1px
+      }
+
+      .file-name{
+        justify-content:flex-start;
+        font-size:13px
+      }
+
+      .preview{margin-top:18px}
+    }
   </style>
 </head>
 <body>
-  <button class="menu-btn" id="menuBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+
   <aside class="side-panel" id="sidePanel" aria-hidden="true">
     <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
     <h2>How it works?</h2>
@@ -60,15 +183,25 @@
     </section>
 
     <section class="analyzer">
-      <input id="fileInput" type="file" hidden accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.mkv,.webm,.mp3,.wav">
+      <input
+        id="fileInput"
+        type="file"
+        hidden
+        accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.mkv,.webm,.mp3,.wav"
+      >
+
       <div class="upload-area">
         <button class="upload-btn" id="uploadBtn" type="button">Choose file</button>
         <div class="arrow" aria-hidden="true">····→</div>
         <button class="analyze-btn" id="analyzeBtn" type="button" disabled>Analyze</button>
       </div>
+
       <div class="file-name" id="fileName">No file selected</div>
+
       <div class="preview" id="preview"></div>
+
       <div class="status" id="status"></div>
+
       <div class="result" id="result" hidden>
         <div class="result-label" id="resultLabel"></div>
         <div class="score" id="resultScore"></div>
@@ -93,10 +226,19 @@
     const menuBtn=document.getElementById('menuBtn');
     const sidePanel=document.getElementById('sidePanel');
     const closeBtn=document.getElementById('closeBtn');
+
     let uploaded=null;
 
-    menuBtn.onclick=()=>{sidePanel.classList.add('open');sidePanel.setAttribute('aria-hidden','false')};
-    closeBtn.onclick=()=>{sidePanel.classList.remove('open');sidePanel.setAttribute('aria-hidden','true')};
+    menuBtn.onclick=()=>{
+      sidePanel.classList.add('open');
+      sidePanel.setAttribute('aria-hidden','false');
+    };
+
+    closeBtn.onclick=()=>{
+      sidePanel.classList.remove('open');
+      sidePanel.setAttribute('aria-hidden','true');
+    };
+
     uploadBtn.onclick=()=>fileInput.click();
     fileInput.onchange=()=>chooseFile(fileInput.files[0]);
 
@@ -105,62 +247,141 @@
       if(bytes<1024*1024)return (bytes/1024).toFixed(1)+' KB';
       return (bytes/1024/1024).toFixed(1)+' MB';
     }
-    function ext(name){return name.includes('.')?name.split('.').pop().toLowerCase():''}
+
+    function ext(name){
+      return name.includes('.')?name.split('.').pop().toLowerCase():'';
+    }
+
+    function setFileName(name,size){
+      fileName.innerHTML='';
+
+      const icon=document.createElement('span');
+      icon.textContent='▧';
+      icon.setAttribute('aria-hidden','true');
+      icon.style.cssText=
+        'font-size:16px;color:#888;line-height:1;flex:0 0 auto';
+
+      const label=document.createElement('span');
+      label.textContent=name+' • '+fmt(size);
+      label.style.cssText=
+        'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+
+      fileName.append(icon,label);
+    }
+
     function chooseFile(file){
       if(!file)return;
+
       uploaded=null;
       analyzeBtn.disabled=true;
       result.hidden=true;
       statusEl.textContent='';
-      fileName.textContent=file.name+' • '+fmt(file.size);
+
       const e=ext(file.name);
+
       preview.style.display='none';
       preview.innerHTML='';
+
+      setFileName(file.name,file.size);
+
       if(['jpg','jpeg','png','webp'].includes(e)){
         const img=document.createElement('img');
-        img.src=URL.createObjectURL(file);img.alt='Selected image';
-        const meta=document.createElement('div');meta.className='preview-meta';meta.textContent='Image • '+fmt(file.size);
-        preview.append(img,meta);preview.style.display='block';
+        img.src=URL.createObjectURL(file);
+        img.alt='Uploaded image thumbnail';
+
+        const meta=document.createElement('div');
+        meta.className='preview-meta';
+
+        const filename=document.createElement('span');
+        filename.className='preview-filename';
+        filename.textContent=file.name;
+
+        const kind=document.createElement('span');
+        kind.className='preview-kind';
+        kind.textContent='Image';
+
+        meta.append(img,filename,kind);
+        preview.append(meta);
+        preview.style.display='block';
       }
+
       upload(file);
     }
+
     async function upload(file){
       statusEl.textContent='Uploading…';
-      const fd=new FormData();fd.append('media',file);
+
+      const fd=new FormData();
+      fd.append('media',file);
+
       try{
-        const r=await fetch('/api/upload',{method:'POST',body:fd});
+        const r=await fetch('/api/upload',{
+          method:'POST',
+          body:fd
+        });
+
         const d=await r.json();
+
         if(!r.ok)throw new Error(d.error||'Upload failed.');
+
         uploaded=d;
-        fileName.textContent=d.filename+' • '+fmt(d.size);
+        setFileName(d.filename,d.size);
+
         if(d.kind==='image'){
           analyzeBtn.disabled=false;
           statusEl.textContent='Ready to analyze.';
         }else{
           analyzeBtn.disabled=true;
-          statusEl.textContent='Analysis coming soon — image analysis is available now; video/audio analysis is being added.';
+          statusEl.textContent=
+            'Analysis coming soon — image analysis is available now; video/audio analysis is being added.';
         }
-      }catch(err){statusEl.textContent=err.message}
+      }catch(err){
+        statusEl.textContent=err.message;
+      }
     }
 
     analyzeBtn.onclick=async()=>{
       if(!uploaded)return;
-      analyzeBtn.disabled=true;fileInput.disabled=true;
+
+      analyzeBtn.disabled=true;
+      fileInput.disabled=true;
       statusEl.textContent='Analyzing…';
+
       result.hidden=false;
-      resultLabel.textContent='';resultScore.textContent='';resultMessage.textContent='';resultDisclaimer.textContent='';
-      const fd=new FormData();fd.append('stored_name',uploaded.stored_name);fd.append('filename',uploaded.filename);
+      resultLabel.textContent='';
+      resultScore.textContent='';
+      resultMessage.textContent='';
+      resultDisclaimer.textContent='';
+
+      const fd=new FormData();
+      fd.append('stored_name',uploaded.stored_name);
+      fd.append('filename',uploaded.filename);
+
       try{
-        const r=await fetch('/api/analyze',{method:'POST',body:fd});
+        const r=await fetch('/api/analyze',{
+          method:'POST',
+          body:fd
+        });
+
         const d=await r.json();
+
         if(!r.ok)throw new Error(d.error||'Analysis failed.');
+
         resultLabel.textContent=d.label||'Result';
-        resultScore.textContent=d.score==null?'':(d.score+'% confidence');
+        resultScore.textContent=
+          d.score==null?'':(d.score+'% confidence');
         resultMessage.textContent=d.message||'';
-        resultDisclaimer.textContent=d.disclaimer||'*Analysis is not 100% proficient and might make mistakes.';
+        resultDisclaimer.textContent=
+          d.disclaimer||'*Analysis is not 100% proficient and might make mistakes.';
         statusEl.textContent='';
-      }catch(err){resultLabel.textContent='Analysis unavailable';resultMessage.textContent=err.message;resultDisclaimer.textContent=''}
-      finally{analyzeBtn.disabled=false;fileInput.disabled=false}
+      }catch(err){
+        resultLabel.textContent='Analysis unavailable';
+        resultMessage.textContent=err.message;
+        resultDisclaimer.textContent='';
+      }finally{
+        analyzeBtn.disabled=false;
+        fileInput.disabled=false;
+      }
     };
   </script>
 </body>
