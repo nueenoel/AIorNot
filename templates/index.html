@@ -32,7 +32,7 @@
 
     .page{
       min-height:100vh;display:flex;flex-direction:column;align-items:center;
-      padding:120px 22px 70px
+      padding:90px 22px 60px
     }
     .hero{text-align:center;max-width:720px}
     .hero h1{
@@ -128,11 +128,6 @@
     }
     .result-label{font-size:30px;font-weight:750;letter-spacing:-.03em}
     .score{margin-top:10px;font-size:20px;color:#555}
-    .message{max-width:620px;margin:14px auto 0;color:#555;line-height:1.5;font-size:14px}
-    .disclaimer{
-      margin:18px auto 0;color:#999;font-size:11px;line-height:1.45;
-      max-width:560px
-    }
     .coming{color:#555}
 
     @media(max-width:600px){
@@ -225,8 +220,6 @@
       <div class="result" id="result" hidden>
         <div class="result-label" id="resultLabel"></div>
         <div class="score" id="resultScore"></div>
-        <p class="message" id="resultMessage"></p>
-        <p class="disclaimer" id="resultDisclaimer"></p>
       </div>
     </section>
   </main>
@@ -241,8 +234,6 @@
     const result=document.getElementById('result');
     const resultLabel=document.getElementById('resultLabel');
     const resultScore=document.getElementById('resultScore');
-    const resultMessage=document.getElementById('resultMessage');
-    const resultDisclaimer=document.getElementById('resultDisclaimer');
     const menuBtn=document.getElementById('menuBtn');
     const sidePanel=document.getElementById('sidePanel');
     const closeBtn=document.getElementById('closeBtn');
@@ -370,8 +361,6 @@
       result.hidden=false;
       resultLabel.textContent='';
       resultScore.textContent='';
-      resultMessage.textContent='';
-      resultDisclaimer.textContent='';
 
       const fd=new FormData();
       fd.append('stored_name',uploaded.stored_name);
@@ -390,14 +379,10 @@
         resultLabel.textContent=d.label||'Result';
         resultScore.textContent=
           d.score==null?'':(d.score+'% confidence');
-        resultMessage.textContent=d.message||'';
-        resultDisclaimer.textContent=
-          d.disclaimer||'*Analysis is not 100% proficient and might make mistakes.';
         statusEl.textContent='';
       }catch(err){
         resultLabel.textContent='Analysis unavailable';
-        resultMessage.textContent=err.message;
-        resultDisclaimer.textContent='';
+        statusEl.textContent=err.message;
       }finally{
         analyzeBtn.disabled=false;
         fileInput.disabled=false;
