@@ -61,8 +61,8 @@ def _preprocess(path: Path):
             raise ValueError("That image has invalid dimensions.")
 
         scale = RESIZE_SHORTER_EDGE / min(width, height)
-        resized_width = max(RESIZE_SHORTER_EDGE, round(width * scale))
-        resized_height = max(RESIZE_SHORTER_EDGE, round(height * scale))
+        resized_width = max(RESIZE_SHORTER_EDGE, int(width * scale))
+        resized_height = max(RESIZE_SHORTER_EDGE, int(height * scale))
         image = image.resize(
             (resized_width, resized_height),
             Image.Resampling.BICUBIC,
