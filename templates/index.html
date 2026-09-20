@@ -142,47 +142,25 @@
     .side-panel .next-title{margin-top:39px}
 
     .side-panel p{
-      display:grid;
-      grid-template-columns:18px minmax(0,1fr);
-      column-gap:6px;
-      align-items:start;
+      position:relative;
+      display:block;
       margin:0 0 14px;
+      padding-left:24px;
       color:var(--muted-strong);
       font-size:13px;
       line-height:1.65;
     }
 
     .side-panel p::before{
+      position:absolute;
+      top:.83em;
+      left:0;
       content:"";
       width:5px;
       height:5px;
-      margin-top:.5em;
       border-radius:50%;
       background:var(--accent);
-    }
-
-    .close-btn{
-      position:absolute;
-      top:20px;
-      right:20px;
-      display:grid;
-      width:36px;
-      height:36px;
-      place-content:center;
-      padding:0;
-      border:1px solid transparent;
-      border-radius:9px;
-      background:transparent;
-      color:var(--ink);
-      font-size:24px;
-      line-height:1;
-      cursor:pointer;
-      transition:background .18s ease,border-color .18s ease;
-    }
-
-    .close-btn:hover{
-      border-color:var(--line);
-      background:var(--soft);
+      transform:translateY(-50%);
     }
 
     .page{
@@ -190,7 +168,7 @@
       min-height:100vh;
       flex-direction:column;
       align-items:center;
-      padding:99px 22px 66px;
+      padding:54px 22px 30px;
       transition:transform .3s cubic-bezier(.2,.72,.22,1);
     }
 
@@ -288,8 +266,8 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      height:50px;
       color:var(--muted);
-      font-size:21px;
       line-height:1;
       text-align:center;
       white-space:nowrap;
@@ -300,16 +278,40 @@
       display:block;
       width:39px;
       height:1px;
-      margin-right:4px;
+      margin:0;
       background:repeating-linear-gradient(90deg,var(--line-strong) 0 2px,transparent 2px 6px);
     }
 
     .arrow-symbol{
+      position:relative;
       display:block;
-      margin-left:0;
-      font-family:"DM Mono",monospace;
-      font-size:20px;
-      font-weight:500;
+      width:15px;
+      height:15px;
+      margin-left:5px;
+      font-size:0;
+    }
+
+    .arrow-symbol::before{
+      position:absolute;
+      top:50%;
+      left:0;
+      width:14px;
+      height:1px;
+      background:currentColor;
+      content:"";
+      transform:translateY(-50%);
+    }
+
+    .arrow-symbol::after{
+      position:absolute;
+      top:50%;
+      right:0;
+      width:5px;
+      height:5px;
+      border-top:1px solid currentColor;
+      border-right:1px solid currentColor;
+      content:"";
+      transform:translateY(-50%) rotate(45deg);
     }
 
     .file-name{
@@ -498,7 +500,7 @@
 
     @media(max-width:600px){
       .menu-btn{top:16px;left:16px}
-      .page{padding:105px 16px 60px}
+      .page{padding:82px 16px 32px}
       .hero h1{letter-spacing:-.075em}
       .analyzer{margin-top:49px}
 
@@ -525,8 +527,6 @@
 
       .arrow-symbol{
         margin:0;
-        font-size:19px;
-        line-height:1;
         transform:rotate(90deg);
       }
 
@@ -552,7 +552,6 @@
   <div class="menu-scrim" id="menuScrim" aria-hidden="true"></div>
 
   <aside class="side-panel" id="sidePanel" aria-hidden="true" aria-label="How AIorNot works">
-    <button class="close-btn" id="closeBtn" aria-label="Close guide">×</button>
     <h2>How it works</h2>
     <p>Upload an image.</p>
     <p>AIorNot analyzes it with an image classification model.</p>
@@ -606,7 +605,6 @@
     const menuBtn=document.getElementById('menuBtn');
     const menuScrim=document.getElementById('menuScrim');
     const sidePanel=document.getElementById('sidePanel');
-    const closeBtn=document.getElementById('closeBtn');
     const page=document.querySelector('.page');
     let uploaded=null;
     let previewUrl=null;
@@ -615,14 +613,13 @@
       sidePanel.classList.toggle('open',isOpen);
       sidePanel.setAttribute('aria-hidden',String(!isOpen));
       menuBtn.setAttribute('aria-expanded',String(isOpen));
+      menuBtn.setAttribute('aria-label',isOpen?'Close guide':'Open guide');
       page.classList.toggle('guide-open',isOpen);
       document.body.classList.toggle('menu-open',isOpen);
-      if(isOpen) closeBtn.focus();
-      else menuBtn.focus();
+      menuBtn.focus();
     }
 
-    menuBtn.addEventListener('click',()=>setMenuOpen(true));
-    closeBtn.addEventListener('click',()=>setMenuOpen(false));
+    menuBtn.addEventListener('click',()=>setMenuOpen(!sidePanel.classList.contains('open')));
     menuScrim.addEventListener('click',()=>setMenuOpen(false));
     document.addEventListener('keydown',(event)=>{
       if(event.key==='Escape'&&sidePanel.classList.contains('open')) setMenuOpen(false);
