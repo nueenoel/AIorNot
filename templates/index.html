@@ -145,7 +145,7 @@
     body.menu-open .menu-btn span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
 
     .history-btn{
-      position:fixed;top:20px;left:72px;z-index:30;display:grid;width:42px;height:42px;place-items:center;
+      position:fixed;top:20px;right:20px;left:auto;z-index:30;display:grid;width:42px;height:42px;place-items:center;
       padding:0;border:1px solid var(--line);border-radius:11px;background:var(--menu-bg);color:var(--ink);
       box-shadow:var(--menu-shadow);cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;backdrop-filter:blur(8px);
     }
@@ -169,7 +169,7 @@
     .side-panel p::before{position:absolute;top:.83em;left:0;content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);transform:translateY(-50%)}
 
     .history-panel{
-      position:fixed;z-index:25;inset:0 0 0 auto;width:min(344px,88vw);padding:88px 26px 32px;overflow-y:auto;
+      position:fixed;z-index:25;inset:0 0 0 auto;width:min(344px,88vw);padding:88px 30px 32px;overflow-y:auto;
       border-left:1px solid var(--line);background:var(--panel-bg);box-shadow:-18px 0 46px rgba(23,23,22,.12);
       transform:translateX(104%);transition:transform .26s cubic-bezier(.2,.72,.22,1);
       -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
@@ -177,11 +177,14 @@
     html[data-theme="dark"] .history-panel{box-shadow:-18px 0 46px rgba(0,0,0,.34)}
     .history-panel.open{transform:translateX(0)}
     body.history-open .menu-scrim{visibility:visible;opacity:1}
-    .history-panel h2{margin:0 0 18px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:600;letter-spacing:-.045em}
+    .history-panel h2{margin:0 0 18px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:600;letter-spacing:-.045em;transform:translateY(-60px)}
     .history-empty{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
     .history-list{display:grid;gap:10px}
     .history-item{padding:12px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
-    .history-name{overflow:hidden;color:var(--ink);font-size:13px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+    .history-name-row{display:flex;align-items:center;gap:9px;min-width:0}
+    .history-thumb{display:block;width:28px;height:28px;flex:0 0 28px;border:1px solid var(--line);border-radius:5px;background:var(--soft);object-fit:cover}
+    .history-file-icon{display:grid;width:28px;height:28px;flex:0 0 28px;place-items:center;border:1px solid var(--line);border-radius:5px;background:var(--soft);color:var(--muted);font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase}
+    .history-name{min-width:0;max-width:100%;overflow:hidden;color:var(--ink);font-size:13px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
     .history-meta{display:flex;align-items:center;gap:10px;margin-top:7px;color:var(--muted);font-family:"DM Mono",monospace;font-size:10px;line-height:1.4}
     .history-time{margin-left:auto}
     .history-status{color:var(--muted-strong);font-family:"Manrope",sans-serif;font-size:11px;font-weight:600}
@@ -192,7 +195,7 @@
     .history-clear:hover{color:var(--ink)}
 
     .theme-btn{
-      position:fixed;top:20px;right:20px;z-index:30;display:grid;width:36px;height:36px;place-items:center;
+      position:fixed;top:23px;left:76px;right:auto;z-index:30;display:grid;width:36px;height:36px;place-items:center;
       padding:0;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer;
       transition:background .18s ease,border-color .18s ease,transform .18s ease;
     }
@@ -245,7 +248,7 @@
     .status[data-state="error"]{color:var(--danger)}
     .status[data-state="pending"]{color:var(--uncertain)}
 
-    .result{position:relative;display:grid;justify-items:center;margin-top:39px;padding:30px 20px 27px;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--result-bg);box-shadow:var(--shadow);text-align:center}
+    .result{position:relative;display:grid;width:min(680px,100%);justify-items:center;margin:39px auto 0;padding:30px 20px 27px;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--result-bg);box-shadow:var(--shadow);text-align:center}
     .result::before{content:"MODEL ESTIMATE";margin-bottom:12px;color:var(--muted);font-family:"DM Mono",monospace;font-size:10px;font-weight:500;letter-spacing:.08em}
     .confidence-meter{width:min(290px,78%);height:4px;margin-top:14px;overflow:hidden;border-radius:999px;background:var(--line)}
     .confidence-fill{display:block;width:var(--meter-width,0%);height:100%;border-radius:inherit;background:var(--result-color,var(--ink));transition:width .45s cubic-bezier(.2,.72,.22,1)}
@@ -256,15 +259,20 @@
     .result[data-status="error"]{--result-color:var(--danger)}
     .result-label{display:flex;align-items:center;justify-content:center;gap:9px;color:var(--ink);font-family:"Space Grotesk","Manrope",sans-serif;font-size:clamp(25px,4vw,32px);font-weight:600;letter-spacing:-.055em;line-height:1.1}
     .result-label::before{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--result-color,var(--ink));box-shadow:0 0 0 4px color-mix(in srgb,var(--result-color,var(--ink)) 12%,transparent);content:""}
-    .score{margin-top:10px;color:var(--muted-strong);font-family:"DM Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.015em}
+    .score{display:none}
     .result-detail{display:none}
 
-    @media(min-width:601px){.page.guide-open{transform:translateX(165px)}}
+    @media(min-width:601px){
+      .page.guide-open{transform:translateX(165px)}
+      .page.history-open{transform:translateX(-165px)}
+    }
 
     @media(max-width:600px){
       .menu-btn{top:16px;left:16px}
-      .history-btn{top:16px;left:66px}
+      .history-btn{top:16px;right:16px;left:auto}
+      .theme-btn{top:19px;left:66px;right:auto}
       .confidence-meter{width:min(220px,72%);height:3px;margin-top:12px}
+      .result{width:100%}
       .page{padding:82px 16px 32px}
       .hero h1{letter-spacing:-.075em}
       .analyzer{margin-top:49px}
@@ -382,6 +390,16 @@
       try{sessionStorage.setItem('aiornot-history',JSON.stringify(analysisHistory))}catch(_){ }
     }
 
+    function shortenHistoryFilename(filename){
+      const fullName=String(filename||'Untitled file');
+      const dot=fullName.lastIndexOf('.');
+      const extension=dot>0 ? fullName.slice(dot) : '';
+      const stem=dot>0 ? fullName.slice(0,dot) : fullName;
+      const maxStem=27;
+      if(stem.length<=maxStem)return fullName;
+      return `${stem.slice(0,maxStem)}......${extension}`;
+    }
+
     function renderHistory(){
       historyList.innerHTML='';
       const hasHistory=analysisHistory.length>0;
@@ -391,9 +409,31 @@
         const card=document.createElement('div');
         card.className='history-item';
         card.dataset.status=item.status||'neutral';
+
+        const nameRow=document.createElement('div');
+        nameRow.className='history-name-row';
+
+        if(item.thumbnail){
+          const thumb=document.createElement('img');
+          thumb.className='history-thumb';
+          thumb.src=item.thumbnail;
+          thumb.alt='';
+          thumb.setAttribute('aria-hidden','true');
+          nameRow.append(thumb);
+        }else{
+          const icon=document.createElement('span');
+          icon.className='history-file-icon';
+          icon.textContent=item.kind==='video'?'VID':item.kind==='audio'?'AUD':'IMG';
+          icon.setAttribute('aria-hidden','true');
+          nameRow.append(icon);
+        }
+
         const name=document.createElement('div');
         name.className='history-name';
-        name.textContent=item.filename||'Untitled file';
+        name.textContent=shortenHistoryFilename(item.filename);
+        name.title=item.filename||'Untitled file';
+        nameRow.append(name);
+
         const meta=document.createElement('div');
         meta.className='history-meta';
         const status=document.createElement('span');
@@ -409,17 +449,45 @@
           meta.append(score);
         }
         meta.append(time);
-        card.append(name,meta);
+        card.append(nameRow,meta);
         historyList.append(card);
       });
     }
 
-    function addToHistory(file,data,presentation,score){
+    function makeHistoryThumbnail(file){
+      if(!file||!file.type||!file.type.startsWith('image/'))return Promise.resolve(null);
+      return new Promise(resolve=>{
+        const url=URL.createObjectURL(file);
+        const img=new Image();
+        img.onload=()=>{
+          try{
+            const size=72;
+            const canvas=document.createElement('canvas');
+            canvas.width=size;
+            canvas.height=size;
+            const ctx=canvas.getContext('2d');
+            if(!ctx)throw new Error();
+            const scale=Math.max(size/img.naturalWidth,size/img.naturalHeight);
+            const width=img.naturalWidth*scale;
+            const height=img.naturalHeight*scale;
+            ctx.drawImage(img,(size-width)/2,(size-height)/2,width,height);
+            resolve(canvas.toDataURL('image/jpeg',0.72));
+          }catch(_){resolve(null)}
+          URL.revokeObjectURL(url);
+        };
+        img.onerror=()=>{URL.revokeObjectURL(url);resolve(null)};
+        img.src=url;
+      });
+    }
+
+    async function addToHistory(file,data,presentation,score){
       const entry={
         filename:file?.name||data?.filename||'Untitled file',
+        kind:data?.kind||((file?.type||'').startsWith('image/')?'image':(file?.type||'').startsWith('video/')?'video':'audio'),
         label:presentation.label,
         status:presentation.status,
         score:Number.isFinite(score)?score:null,
+        thumbnail:await makeHistoryThumbnail(file),
         time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
       };
       analysisHistory.unshift(entry);
@@ -432,6 +500,8 @@
       if(isOpen&&sidePanel.classList.contains('open'))setMenuOpen(false);
       historyPanel.classList.toggle('open',isOpen);
       historyPanel.setAttribute('aria-hidden',String(!isOpen));
+      page.classList.toggle('history-open',isOpen);
+      document.body.classList.toggle('history-open',isOpen);
       historyBtn.setAttribute('aria-expanded',String(isOpen));
       historyBtn.setAttribute('aria-label',isOpen?'Close history':'Open history');
       historyBtn.title=isOpen?'Close history':'Open history';
@@ -620,7 +690,7 @@
       if(!Number.isFinite(probability))return '';
       return Number.isInteger(probability)?String(probability):probability.toFixed(1);
     }
-    function renderResult(data){
+    async function renderResult(data){
       const presentation=presentationFor(data);
       const score=Number(data.score);
       const hasScore=Number.isFinite(score);
@@ -637,12 +707,12 @@
       result.style.setProperty('--confidence',hasScore?`${meterValue}%`:'0%');
       result.style.setProperty('--meter-width',hasScore?`${meterValue}%`:'0%');
       resultLabel.textContent=presentation.label;
-      resultScore.textContent=scoreText;
+      resultScore.textContent='';
       confidenceFill.style.width=hasScore?`${meterValue}%`:'0%';
       confidenceValue.textContent=hasScore?`${Math.round(meterValue)}%`:'';
       resultDetail.textContent='';
       resultScore.title='This is a model estimate, not a guarantee of authenticity.';
-      addToHistory(fileInput.files[0],data,presentation,hasScore?score:null);
+      await addToHistory(fileInput.files[0],data,presentation,hasScore?score:null);
     }
 
     function waitForVideoEvent(video,eventName,timeoutMs=8000){
@@ -714,7 +784,7 @@
           data=await response.json();
           if(!response.ok)throw new Error(data.error||'Analysis failed.');
         }
-        renderResult(data);setStatus('');
+        await renderResult(data);setStatus('');
       }catch(error){
         result.hidden=false;result.dataset.status='error';result.style.setProperty('--confidence','0%');result.style.setProperty('--meter-width','0%');confidenceFill.style.width='0%';confidenceValue.textContent='';resultLabel.textContent='Analysis unavailable';resultScore.textContent='';resultDetail.textContent=error.message;setStatus(error.message,'error');
       }finally{
