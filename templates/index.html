@@ -144,6 +144,15 @@
     body.menu-open .menu-btn span:nth-child(2){opacity:0}
     body.menu-open .menu-btn span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
 
+    .history-btn{
+      position:fixed;top:20px;left:72px;z-index:30;display:grid;width:42px;height:42px;place-items:center;
+      padding:0;border:1px solid var(--line);border-radius:11px;background:var(--menu-bg);color:var(--ink);
+      box-shadow:var(--menu-shadow);cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;backdrop-filter:blur(8px);
+    }
+    .history-btn:hover{border-color:var(--line-strong);box-shadow:var(--menu-hover-shadow);transform:translateY(-1px)}
+    .history-btn:active{transform:translateY(0)}
+    .history-icon{width:17px;height:17px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.7}
+
     .menu-scrim{position:fixed;z-index:19;inset:0;visibility:hidden;background:var(--scrim);opacity:0;transition:opacity .22s ease,visibility .22s ease}
     body.menu-open .menu-scrim{visibility:visible;opacity:1}
 
@@ -158,6 +167,29 @@
     .side-panel .next-title{margin-top:39px}
     .side-panel p{position:relative;display:block;margin:0 0 14px;padding-left:24px;color:var(--muted-strong);font-size:13px;line-height:1.65}
     .side-panel p::before{position:absolute;top:.83em;left:0;content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);transform:translateY(-50%)}
+
+    .history-panel{
+      position:fixed;z-index:25;inset:0 0 0 auto;width:min(344px,88vw);padding:88px 26px 32px;overflow-y:auto;
+      border-left:1px solid var(--line);background:var(--panel-bg);box-shadow:-18px 0 46px rgba(23,23,22,.12);
+      transform:translateX(104%);transition:transform .26s cubic-bezier(.2,.72,.22,1);
+      -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    }
+    html[data-theme="dark"] .history-panel{box-shadow:-18px 0 46px rgba(0,0,0,.34)}
+    .history-panel.open{transform:translateX(0)}
+    body.history-open .menu-scrim{visibility:visible;opacity:1}
+    .history-panel h2{margin:0 0 18px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:600;letter-spacing:-.045em}
+    .history-empty{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+    .history-list{display:grid;gap:10px}
+    .history-item{padding:12px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+    .history-name{overflow:hidden;color:var(--ink);font-size:13px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+    .history-meta{display:flex;align-items:center;gap:10px;margin-top:7px;color:var(--muted);font-family:"DM Mono",monospace;font-size:10px;line-height:1.4}
+    .history-time{margin-left:auto}
+    .history-status{color:var(--muted-strong);font-family:"Manrope",sans-serif;font-size:11px;font-weight:600}
+    .history-item[data-status="ai-generated"] .history-status{color:var(--accent)}
+    .history-item[data-status="likely-real"] .history-status{color:var(--real)}
+    .history-item[data-status="uncertain"] .history-status{color:var(--uncertain)}
+    .history-clear{margin-top:17px;padding:0;border:0;background:none;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer}
+    .history-clear:hover{color:var(--ink)}
 
     .theme-btn{
       position:fixed;top:20px;right:20px;z-index:30;display:grid;width:36px;height:36px;place-items:center;
@@ -215,7 +247,9 @@
 
     .result{position:relative;display:grid;justify-items:center;margin-top:39px;padding:30px 20px 27px;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--result-bg);box-shadow:var(--shadow);text-align:center}
     .result::before{content:"MODEL ESTIMATE";margin-bottom:12px;color:var(--muted);font-family:"DM Mono",monospace;font-size:10px;font-weight:500;letter-spacing:.08em}
-    .result::after{position:absolute;right:auto;bottom:0;left:0;width:var(--confidence,0%);max-width:100%;height:3px;content:"";background:var(--result-color,var(--ink));transition:width .45s cubic-bezier(.2,.72,.22,1)}
+    .confidence-meter{width:min(290px,78%);height:4px;margin-top:14px;overflow:hidden;border-radius:999px;background:var(--line)}
+    .confidence-fill{display:block;width:var(--meter-width,0%);height:100%;border-radius:inherit;background:var(--result-color,var(--ink));transition:width .45s cubic-bezier(.2,.72,.22,1)}
+    .confidence-value{margin-top:6px;color:var(--muted);font-family:"DM Mono",monospace;font-size:10px;font-weight:500;letter-spacing:.02em}
     .result[data-status="ai-generated"]{--result-color:var(--accent);border-color:var(--accent-line);background:linear-gradient(135deg,var(--accent-soft),var(--result-fade))}
     .result[data-status="likely-real"]{--result-color:var(--real);border-color:var(--real-line);background:linear-gradient(135deg,var(--real-soft),var(--result-fade))}
     .result[data-status="uncertain"]{--result-color:var(--uncertain);border-color:var(--uncertain-line);background:linear-gradient(135deg,var(--uncertain-soft),var(--result-fade))}
@@ -229,6 +263,8 @@
 
     @media(max-width:600px){
       .menu-btn{top:16px;left:16px}
+      .history-btn{top:16px;left:66px}
+      .confidence-meter{width:min(220px,72%);height:3px;margin-top:12px}
       .page{padding:82px 16px 32px}
       .hero h1{letter-spacing:-.075em}
       .analyzer{margin-top:49px}
@@ -249,6 +285,12 @@
   <button class="menu-btn" id="menuBtn" aria-label="Open guide" aria-controls="sidePanel" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
+  <button class="history-btn" id="historyBtn" type="button" aria-label="Open history" aria-controls="historyPanel" aria-expanded="false" title="Open history">
+    <svg class="history-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5"></circle>
+      <path d="M12 7.5v5l3.2 2"></path>
+    </svg>
+  </button>
   <div class="menu-scrim" id="menuScrim" aria-hidden="true"></div>
 
   <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Switch to dark mode">
@@ -264,6 +306,13 @@
     <h2 class="next-title">What’s new?</h2>
     <p>Image and browser-based video analysis are available now.</p>
     <p>Audio analysis coming soon.</p>
+  </aside>
+
+  <aside class="history-panel" id="historyPanel" aria-hidden="true" aria-label="Analysis history">
+    <h2>History</h2>
+    <p class="history-empty" id="historyEmpty">Your analyses will appear here for this session.</p>
+    <div class="history-list" id="historyList"></div>
+    <button class="history-clear" id="historyClear" type="button" hidden>Clear history</button>
   </aside>
 
   <main class="page" id="mainContent">
@@ -285,6 +334,8 @@
       <div class="result" id="result" hidden aria-live="polite">
         <div class="result-label" id="resultLabel"></div>
         <div class="score" id="resultScore"></div>
+        <div class="confidence-meter" id="confidenceMeter" aria-hidden="true"><span class="confidence-fill" id="confidenceFill"></span></div>
+        <div class="confidence-value" id="confidenceValue"></div>
         <div class="result-detail" id="resultDetail"></div>
       </div>
     </section>
@@ -304,13 +355,91 @@
     const menuBtn=document.getElementById('menuBtn');
     const menuScrim=document.getElementById('menuScrim');
     const sidePanel=document.getElementById('sidePanel');
+    const historyBtn=document.getElementById('historyBtn');
+    const historyPanel=document.getElementById('historyPanel');
+    const historyList=document.getElementById('historyList');
+    const historyEmpty=document.getElementById('historyEmpty');
+    const historyClear=document.getElementById('historyClear');
+    const confidenceFill=document.getElementById('confidenceFill');
+    const confidenceValue=document.getElementById('confidenceValue');
     const themeBtn=document.getElementById('themeBtn');
     const page=document.querySelector('.page');
 
     let uploaded=null;
     let previewUrl=null;
+    let analysisHistory=[];
+
+    function loadHistory(){
+      try{
+        const saved=sessionStorage.getItem('aiornot-history');
+        analysisHistory=saved?JSON.parse(saved):[];
+        if(!Array.isArray(analysisHistory))analysisHistory=[];
+      }catch(_){analysisHistory=[]}
+      renderHistory();
+    }
+
+    function saveHistory(){
+      try{sessionStorage.setItem('aiornot-history',JSON.stringify(analysisHistory))}catch(_){ }
+    }
+
+    function renderHistory(){
+      historyList.innerHTML='';
+      const hasHistory=analysisHistory.length>0;
+      historyEmpty.hidden=hasHistory;
+      historyClear.hidden=!hasHistory;
+      analysisHistory.forEach(item=>{
+        const card=document.createElement('div');
+        card.className='history-item';
+        card.dataset.status=item.status||'neutral';
+        const name=document.createElement('div');
+        name.className='history-name';
+        name.textContent=item.filename||'Untitled file';
+        const meta=document.createElement('div');
+        meta.className='history-meta';
+        const status=document.createElement('span');
+        status.className='history-status';
+        status.textContent=item.label||'Result';
+        const time=document.createElement('span');
+        time.className='history-time';
+        time.textContent=item.time||'';
+        meta.append(status);
+        if(item.score!==null&&item.score!==undefined&&Number.isFinite(Number(item.score))){
+          const score=document.createElement('span');
+          score.textContent=`${Math.round(Number(item.score))}%`;
+          meta.append(score);
+        }
+        meta.append(time);
+        card.append(name,meta);
+        historyList.append(card);
+      });
+    }
+
+    function addToHistory(file,data,presentation,score){
+      const entry={
+        filename:file?.name||data?.filename||'Untitled file',
+        label:presentation.label,
+        status:presentation.status,
+        score:Number.isFinite(score)?score:null,
+        time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+      };
+      analysisHistory.unshift(entry);
+      analysisHistory=analysisHistory.slice(0,10);
+      saveHistory();
+      renderHistory();
+    }
+
+    function setHistoryOpen(isOpen){
+      if(isOpen&&sidePanel.classList.contains('open'))setMenuOpen(false);
+      historyPanel.classList.toggle('open',isOpen);
+      historyPanel.setAttribute('aria-hidden',String(!isOpen));
+      historyBtn.setAttribute('aria-expanded',String(isOpen));
+      historyBtn.setAttribute('aria-label',isOpen?'Close history':'Open history');
+      historyBtn.title=isOpen?'Close history':'Open history';
+      if(isOpen)historyBtn.focus();
+    }
 
     function setMenuOpen(isOpen){
+      if(isOpen&&historyPanel.classList.contains('open'))setHistoryOpen(false);
       sidePanel.classList.toggle('open',isOpen);
       sidePanel.setAttribute('aria-hidden',String(!isOpen));
       menuBtn.setAttribute('aria-expanded',String(isOpen));
@@ -320,8 +449,15 @@
       menuBtn.focus();
     }
     menuBtn.addEventListener('click',()=>setMenuOpen(!sidePanel.classList.contains('open')));
-    menuScrim.addEventListener('click',()=>setMenuOpen(false));
-    document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&sidePanel.classList.contains('open')) setMenuOpen(false)});
+    historyBtn.addEventListener('click',()=>setHistoryOpen(!historyPanel.classList.contains('open')));
+    menuScrim.addEventListener('click',()=>{setMenuOpen(false);setHistoryOpen(false)});
+    historyClear.addEventListener('click',()=>{analysisHistory=[];saveHistory();renderHistory()});
+    document.addEventListener('keydown',(event)=>{
+      if(event.key==='Escape'){
+        if(sidePanel.classList.contains('open'))setMenuOpen(false);
+        if(historyPanel.classList.contains('open'))setHistoryOpen(false);
+      }
+    });
 
     function setTheme(theme,save=false){
       const isDark=theme==='dark';
@@ -334,6 +470,7 @@
     setTheme(document.documentElement.dataset.theme==='dark'?'dark':'light');
     themeBtn.addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',true));
 
+    loadHistory();
     uploadBtn.addEventListener('click',()=>fileInput.click());
     fileInput.addEventListener('change',()=>chooseFile(fileInput.files[0]));
 
@@ -401,6 +538,9 @@
       result.hidden=true;
       result.dataset.status='';
       result.style.removeProperty('--confidence');
+      result.style.removeProperty('--meter-width');
+      confidenceFill.style.width='0%';
+      confidenceValue.textContent='';
       resultLabel.textContent='';
       resultScore.textContent='';
       resultDetail.textContent='';
@@ -493,11 +633,16 @@
       else if(hasScore)scoreText=`${Math.round(score)}% model score`;
       result.hidden=false;
       result.dataset.status=presentation.status;
-      result.style.setProperty('--confidence',hasScore?`${Math.min(100,Math.max(0,score))}%`:'0%');
+      const meterValue=hasScore?Math.min(100,Math.max(0,score)):0;
+      result.style.setProperty('--confidence',hasScore?`${meterValue}%`:'0%');
+      result.style.setProperty('--meter-width',hasScore?`${meterValue}%`:'0%');
       resultLabel.textContent=presentation.label;
       resultScore.textContent=scoreText;
+      confidenceFill.style.width=hasScore?`${meterValue}%`:'0%';
+      confidenceValue.textContent=hasScore?`${Math.round(meterValue)}%`:'';
       resultDetail.textContent='';
       resultScore.title='This is a model estimate, not a guarantee of authenticity.';
+      addToHistory(fileInput.files[0],data,presentation,hasScore?score:null);
     }
 
     function waitForVideoEvent(video,eventName,timeoutMs=8000){
@@ -571,7 +716,7 @@
         }
         renderResult(data);setStatus('');
       }catch(error){
-        result.hidden=false;result.dataset.status='error';result.style.setProperty('--confidence','0%');resultLabel.textContent='Analysis unavailable';resultScore.textContent='';resultDetail.textContent=error.message;setStatus(error.message,'error');
+        result.hidden=false;result.dataset.status='error';result.style.setProperty('--confidence','0%');result.style.setProperty('--meter-width','0%');confidenceFill.style.width='0%';confidenceValue.textContent='';resultLabel.textContent='Analysis unavailable';resultScore.textContent='';resultDetail.textContent=error.message;setStatus(error.message,'error');
       }finally{
         analyzeBtn.disabled=false;fileInput.disabled=false;uploaded=null;
       }
